@@ -17,6 +17,7 @@ tile_dt = np.dtype(
         ("walkable", bool),  # True if this tile can be walked over.
         ("transparent", bool),  # True if this tile doesn't block FOV.
         ("dark", graphic_dt),  # Graphics for when this tile is not in FOV.
+        ("autotile", bool) # If the Tile will  be set to this symbols to make boders: ─│┌┐└┘
     ]
 )
 
@@ -26,14 +27,15 @@ def new_tile(
     walkable: int,
     transparent: int,
     dark: Tuple[int, Tuple[int, int, int], Tuple[int, int, int]],
+    autotile: bool,
 ) -> np.ndarray:
     """Helper function for defining individual tile types """
-    return np.array((walkable, transparent, dark), dtype=tile_dt)
+    return np.array((walkable, transparent, dark, autotile), dtype=tile_dt)
 
 
 floor = new_tile(
-    walkable=True, transparent=True, dark=(ord("."), (102, 0, 51), (0, 0, 0)),
+    walkable=True, transparent=True, dark=(ord("."), (102, 0, 51), (0, 0, 0)), autotile=False
 )
 wall = new_tile(
-    walkable=False, transparent=False, dark=(ord(" "), (0,0,0), (153, 0, 153)),
+    walkable=False, transparent=False, dark=(ord(" "), (153, 0, 153), (0,0,0)), autotile=True
 )

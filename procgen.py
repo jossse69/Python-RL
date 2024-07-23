@@ -87,7 +87,9 @@ def generate_dungeon(
         # If there are no intersections then the room is valid.
 
         # Dig out this rooms inner area.
-        dungeon.tiles[new_room.inner] = tile_types.floor
+        for x2 in range(new_room.x1 + 1, new_room.x2):
+            for y2 in range(new_room.y1 + 1, new_room.y2):
+                dungeon.set_tile(x2, y2, tile_types.floor)
 
         if len(rooms) == 0:
             # The first room, where the player starts.
@@ -95,7 +97,7 @@ def generate_dungeon(
         else:  # All rooms after the first.
             # Dig out a tunnel between this room and the previous one.
             for x, y in tunnel_between(rooms[-1].center, new_room.center):
-                dungeon.tiles[x, y] = tile_types.floor
+                dungeon.set_tile(x, y, tile_types.floor)
 
         # Finally, append the new room to the list.
         rooms.append(new_room)
