@@ -2,6 +2,7 @@
 import tcod
 import copy
 
+import color
 from engine import Engine
 from entity import Entity
 from procgen import generate_dungeon
@@ -16,7 +17,7 @@ def main():
     max_rooms = 30
 
     map_width = 80
-    map_height = 45
+    map_height = 43
 
     max_monsters_per_room = 2
 
@@ -36,6 +37,16 @@ def main():
     )
     engine.update_fov()
 
+    engine.message_log.add_message(
+        "ALL SYSTEMS RECONNECTED: AWAKENING USER.", color.text_console
+    )
+    engine.message_log.add_message(
+        "WARNING: DANGEROUS LIFEFORMS SIGNALS DETECTED.", color.text_console
+    )
+    engine.message_log.add_message(
+        "TASK: GET OUT OF THIS PLACE!", color.text_console
+    )
+
     with tcod.context.new_terminal(
         screen_width,
         screen_height,
@@ -45,9 +56,11 @@ def main():
     ) as context:
         root_console = tcod.console.Console(screen_width, screen_height, order="F")
         while True:
-           engine.render(console=root_console, context=context)
-           engine.event_handler.handle_events()
+            root_console.clear()
+            engine.event_handler.on_render(console=root_console)
+            context.present(root_console)
 
+            engine.event_handler.handle_events(context)
 
 if __name__ == "__main__":
     main()
