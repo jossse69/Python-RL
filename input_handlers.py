@@ -96,7 +96,7 @@ class MainGameEventHandler(EventHandler):
             action = WaitAction(player)
         elif key == tcod.event.KeySym.ESCAPE:
             action = EscapeAction(self.engine.player)
-        elif key == tcod.event.K_v:
+        elif key == tcod.event.KeySym.v:
             self.engine.event_handler = HistoryViewer(self.engine)
 
         # No valid key was pressed
