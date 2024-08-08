@@ -59,5 +59,5 @@ fireball_Gun = Item(
     color=(255, 0, 0),
     name="Fireball Gun",
     consumable=consumable.FireballDamageConsumable(damage=12, radius=3),
-    inspect_message="It's a gun that shoots fireballs. Like the one from fantasy games. It's pretty effective!",
+    inspect_message="It's a gun that shoots fireballs. Like the ones from fantasy games. It's pretty effective!",
 )
