@@ -5,7 +5,7 @@ from typing import Iterable, Iterator, Optional, TYPE_CHECKING
 import numpy as np  # type: ignore
 from tcod.console import Console
 
-from entity import Actor
+from entity import Actor, Item
 import tile_types
 
 if TYPE_CHECKING:
@@ -37,6 +37,14 @@ class GameMap:
             if isinstance(entity, Actor) and entity.is_alive
         )
 
+    @property
+    def gamemap(self) -> GameMap:
+        return self
+
+    @property
+    def items(self) -> Iterator[Item]:
+        yield from (entity for entity in self.entities if isinstance(entity, Item))
+
     def in_bounds(self, x: int, y: int) -> bool:
         """Return True if x and y are inside of the bounds of this map."""
         return 0 <= x < self.width and 0 <= y < self.height
@@ -51,6 +59,16 @@ class GameMap:
                 and entity.x == location_x
                 and entity.y == location_y
             ):
+                return entity
+
+        return None
+
+    def get_entity_at_location(
+        self, location_x: int, location_y: int,
+    ) -> Optional[Entity]:
+        """Return the entity at a given location, if any."""
+        for entity in self.entities:
+            if entity.x == location_x and entity.y == location_y:
                 return entity
 
         return None
