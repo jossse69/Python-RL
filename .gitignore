@@ -28,3 +28,6 @@ dist/
 
 # Ignore any secret keys
 keys.py
+
+# Ignore any saved games
+*.sav

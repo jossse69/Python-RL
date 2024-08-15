@@ -2,6 +2,7 @@ from components.ai import HostileEnemy
 from components import consumable
 from components.fighter import Fighter
 from components.inventory import Inventory
+from components.level import Level
 from entity import Actor, Item
 
 player = Actor(
@@ -12,6 +13,7 @@ player = Actor(
     fighter=Fighter(hp=30, defense=2, power=5),
     inventory=Inventory(capacity=26),
     inspect_message="It's yourself. What would you ask for?",
+    level=Level(level_up_base=200),
 )
 
 smile_mold = Actor(
@@ -22,6 +24,7 @@ smile_mold = Actor(
     fighter=Fighter(hp=10, defense=0, power=3),
     inventory=Inventory(capacity=0),
     inspect_message="It's a slime mold... That is alive! It looks hungry for your flesh.",
+    level=Level(xp_given=35),
 )
 rusty_automaton = Actor(
     char="a",
@@ -31,6 +34,7 @@ rusty_automaton = Actor(
     fighter=Fighter(hp=16, defense=1, power=4),
     inventory=Inventory(capacity=0),
     inspect_message="He looks like he's been here a while. I Won't say he's having a great time existing.",
+    level=Level(xp_given=100),
 )
 
 healing_gel = Item(

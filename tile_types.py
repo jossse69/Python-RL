@@ -43,3 +43,10 @@ floor = new_tile(
 wall = new_tile(
     walkable=False, transparent=False, light=(ord(" "), (153, 0, 153), (0,0,0)), dark=(ord(" "), (51, 51, 51), (0, 0, 0)), autotile=True
 )
+down_stairs = new_tile(
+    walkable=True,
+    transparent=True,
+    dark=(ord(">"), (0, 100, 100), (0, 0 ,0)),
+    light=(ord(">"), (255, 204, 102), (0, 0, 0)),
+    autotile=False
+)

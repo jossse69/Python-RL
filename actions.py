@@ -154,15 +154,15 @@ class PickupAction(Action):
 
         raise exceptions.Impossible("There is nothing here to pick up.")
 
-class DropItem(ItemAction):
+class TakeStairsAction(Action):
     def perform(self) -> None:
-        self.entity.inventory.drop(self.item)
-
-class InspectAction(Action):
-    def __init__(self, actor: Actor, target: Entity):
-        super().__init__(actor)
-
-        self.message = target.inspect_message
-
-    def perform(self) -> None:
-        self.engine.message_log.add_message(self.message.upper(), color.text_console)
+        """
+        Take the stairs, if any exist at the entity's location.
+        """
+        if (self.entity.x, self.entity.y) == self.engine.game_map.downstairs_location:
+            self.engine.game_world.generate_floor()
+            self.engine.message_log.add_message(
+                "You descend the staircase.", color.descend
+            )
+        else:
+            raise exceptions.Impossible("There are no stairs here.")

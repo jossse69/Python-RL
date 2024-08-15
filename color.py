@@ -21,3 +21,7 @@ bar_filled = (255, 0, 0)
 bar_empty = (77, 0, 0)
 
 health_recovered = (102, 255, 102)
+
+menu_title = (51, 153, 255)
+menu_text = text_console
+descend = (255, 204, 102)
