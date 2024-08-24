@@ -1,19 +1,21 @@
 from components.ai import HostileEnemy
-from components import consumable
+from components import consumable, equippable
 from components.fighter import Fighter
 from components.inventory import Inventory
 from components.level import Level
 from entity import Actor, Item
+from components.equipment import Equipment
 
 player = Actor(
     char="@",
     color=(255, 255, 0),
     name="Player",
     ai_cls=HostileEnemy,
-    fighter=Fighter(hp=30, defense=2, power=5),
+    fighter=Fighter(hp=30, base_defense=1, base_power=2),
     inventory=Inventory(capacity=26),
     inspect_message="It's yourself. What would you ask for?",
     level=Level(level_up_base=200),
+    equipment=Equipment(),
 )
 
 smile_mold = Actor(
@@ -21,20 +23,22 @@ smile_mold = Actor(
     color=(255, 80, 80), 
     name="Slime Mold", 
     ai_cls=HostileEnemy,
-    fighter=Fighter(hp=10, defense=0, power=3),
+    fighter=Fighter(hp=10, base_defense=0, base_power=3),
     inventory=Inventory(capacity=0),
     inspect_message="It's a slime mold... That is alive! It looks hungry for your flesh.",
     level=Level(xp_given=35),
+    equipment=Equipment(),
 )
 rusty_automaton = Actor(
     char="a",
     color=(200, 174, 137),
     name="Rusty Automaton",
     ai_cls=HostileEnemy,
-    fighter=Fighter(hp=16, defense=1, power=4),
+    fighter=Fighter(hp=16, base_defense=1, base_power=4),
     inventory=Inventory(capacity=0),
     inspect_message="He looks like he's been here a while. I Won't say he's having a great time existing.",
     level=Level(xp_given=100),
+    equipment=Equipment(),
 )
 
 healing_gel = Item(
@@ -58,10 +62,41 @@ stun_gun = Item(
     consumable=consumable.ConfusionConsumable(number_of_turns=10),
     inspect_message="Bright flashes always makes everyone disoriented. I'd get confused if i were to look at it.",
 )
-fireball_Gun = Item(
+fireball_gun = Item(
     char="~",
     color=(255, 0, 0),
     name="Fireball Gun",
     consumable=consumable.FireballDamageConsumable(damage=12, radius=3),
     inspect_message="It's a gun that shoots fireballs. Like the ones from fantasy games. It's pretty effective!",
+)
+
+pocket_kinfe = Item(    char="/", color=(102, 255, 255), name="Pocket kinfe", equippable=equippable.PocketKinfe(),
+    inspect_message="The most pesonal kinfe you'll ever find. Use it if you're in a pinch."
+)
+
+old_kinfe = Item(
+    char="/", color=(102, 255, 255), name="Old kinfe", equippable=equippable.OldKinfe(),
+    inspect_message="It's a old rusty kitchen kinfe. It's not very sharp, but it's still effective."
+)
+sharp_kinfe = Item(char="/", color=(102, 255, 255), name="Sharp kinfe", equippable=equippable.SharpKinfe(),
+    inspect_message="It's a kitchen kinfe that was not let outside at least."
+)
+
+scrap_chest_plate = Item(
+    char="[",
+    color=(102, 255, 255),
+    name="Scrap chest plate",
+    equippable=equippable.ScrapChestPlate(),
+    inspect_message="It's a chest plate made of scrap metal. It's not very strong, but it's still effective.",
+)
+iron_chest_plate = Item(
+    char="[",
+    color=(102, 255, 255),
+    name="Iron chest plate",
+    equippable=equippable.IronChestPlate(),
+    inspect_message="It's a chest plate made of iron. Put it on and you'll be able to take a beating.")
+
+steel_chest_plate  = Item(
+    char="[", color=(102, 255, 255), name="Steel chest plate", equippable=equippable.SteelChestPlate(),
+    inspect_message="It's a chest plate, now made of steel. You'll be able to take quite the beating!"
 )

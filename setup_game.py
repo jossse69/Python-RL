@@ -28,9 +28,6 @@ def new_game() -> Engine:
     map_width = 80
     map_height = 43
 
-    max_monsters_per_room = 2
-    max_items_per_room = 2
-
     player = copy.deepcopy(entity_factories.player)
     engine = Engine(player=player)
     
@@ -41,8 +38,6 @@ def new_game() -> Engine:
         room_max_size=room_max_size,
         map_width=map_width,
         map_height=map_height,
-        max_monsters_per_room=max_monsters_per_room,
-        max_items_per_room=max_items_per_room,
     )
 
     engine.game_world.generate_floor()
@@ -57,6 +52,18 @@ def new_game() -> Engine:
     engine.message_log.add_message(
         "TASK: GET OUT OF THIS PLACE!", color.text_console
     )
+    kinfe = copy.deepcopy(entity_factories.pocket_kinfe)
+    chest_plate = copy.deepcopy(entity_factories.scrap_chest_plate)
+
+    kinfe.parent = player.inventory
+    chest_plate.parent = player.inventory
+
+    player.inventory.items.append(kinfe)
+    player.equipment.toggle_equip(kinfe, add_message=False)
+
+    player.inventory.items.append(chest_plate)
+    player.equipment.toggle_equip(chest_plate, add_message=False)
+    
     return engine
 
 def load_game(filename: str) -> Engine:
