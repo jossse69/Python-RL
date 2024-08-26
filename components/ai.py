@@ -113,3 +113,82 @@ class ConfusedEnemy(BaseAI):
             # The actor will either try to move or attack in the chosen random direction.
             # Its possible the actor will just bump into the wall, wasting a turn.
             return BumpAction(self.entity, direction_x, direction_y,).perform()
+    
+
+class SpawnerEnemy(BaseAI):
+    """
+    A spawner enemy will spawn a new enemy (of the selected type) in a random location around it self. while trying to get distanced from the player.
+    """
+
+    def __init__(
+        self, entity: Actor
+    ):
+        super().__init__(entity)
+
+        self.is_setup = False
+
+    def setup(self,spawned_entity: Actor, spawn_rate: int):
+        self.spawned_entity = spawned_entity
+        self.spawn_rate = spawn_rate
+        self.spawn_timer = 0
+        self.is_setup = True
+
+    def perform(self) -> None:
+        # Do not perform if this AI is not setup or the spawner is not visible.
+        if not self.is_setup or not self.engine.game_map.visible[self.entity.x, self.entity.y]:
+            return WaitAction(self.entity).perform()
+
+        
+
+        # If the spawn timer is greater than the spawn rate, spawn a new enemy.
+        if self.spawn_timer >= self.spawn_rate:
+            # Reset the spawn timer.
+            self.spawn_timer = 0
+
+            # Get a random location near the spawner.
+            x = self.entity.x + random.randint(-3, 3)
+            y = self.entity.y + random.randint(-3, 3)
+
+            tries = 0
+            while not self.engine.game_map.in_bounds(x, y) or not self.engine.game_map.get_blocking_entity_at_location(x, y):
+                x = self.entity.x + random.randint(-3, 3)
+                y = self.entity.y + random.randint(-3, 3)
+                tries += 1
+                if tries > 10:
+                    return WaitAction(self.entity).perform() # If the spawner is not able to find a valid location, it will wait.
+            
+            # Spawn the new enemy.
+            self.spawned_entity.spawn(self.engine.game_map, x, y)
+            # Add a message to the message log.
+            self.engine.message_log.add_message(
+                f"The {self.entity.name} spawned a new {self.spawned_entity.name}!"
+            )
+
+        # Get the distance between the player and the spawner.
+        distance = self.entity.distance(self.engine.player.x, self.engine.player.y)
+
+        # If the distance is less than 5, move away from the player.
+        if distance < 5:
+            # Get the direction to the player.
+            direction_x = self.engine.player.x - self.entity.x
+            direction_y = self.engine.player.y - self.entity.y
+
+            # Normalize the direction.
+            direction_x = max(min(direction_x, 1), -1)
+            direction_y = max(min(direction_y, 1), -1)
+
+            # Round the direction.
+            direction_x = -round(direction_x)
+            direction_y = -round(direction_y)
+
+            # Move the spawner in the direction of the player.
+            return MovementAction(
+                self.entity, direction_x, direction_y,
+            ).perform()
+
+
+        # Add 1 to the spawn timer.
+        self.spawn_timer += 1
+
+        # Return a wait action.
+        return WaitAction(self.entity).perform()

@@ -1,4 +1,4 @@
-from components.ai import HostileEnemy
+from components.ai import HostileEnemy, SpawnerEnemy
 from components import consumable, equippable
 from components.fighter import Fighter
 from components.inventory import Inventory
@@ -18,7 +18,7 @@ player = Actor(
     equipment=Equipment(),
 )
 
-smile_mold = Actor(
+slime_mold = Actor(
     char="m", 
     color=(255, 80, 80), 
     name="Slime Mold", 
@@ -40,13 +40,54 @@ rusty_automaton = Actor(
     level=Level(xp_given=100),
     equipment=Equipment(),
 )
+hunter_humanoid = Actor(
+    char="h",
+    color=(244, 227, 210),
+    name="Hunter Humanoid",
+    ai_cls=HostileEnemy,
+    fighter=Fighter(hp=20, base_defense=2, base_power=7),
+    inventory=Inventory(capacity=0),
+    level=Level(xp_given=150),
+    equipment=Equipment(),
+    inspect_message="It's a mutated human, probably due to being exposed to irradiated places. It's now a reckless hunter, with sharp claws and skinny body, it wants to eat fresh flesh."
+)
+acid_mold = Actor(
+    char="m",
+    color=(0, 204, 102),
+    name="Acid Mold",
+    ai_cls=HostileEnemy,
+    fighter=Fighter(hp=19, base_defense=1, base_power=6),
+    inventory=Inventory(capacity=0),
+    level=Level(xp_given=50),
+    equipment=Equipment(),
+    inspect_message="It's a slime mold, but it's acidic. Don't touch it! It's pains to the touch."
+)
+mama_mold = Actor(
+    char="M",
+    color=(0, 204, 102),
+    name="Mama Mold",
+    ai_cls=SpawnerEnemy,
+    fighter=Fighter(hp=30, base_defense=1, base_power=0),
+    inventory=Inventory(capacity=0),
+    level=Level(xp_given=200),
+    equipment=Equipment(),
+    inspect_message="It's a big slime mold. It's trying to reproduce, and use its offspring to defend itself from you."
+)
+mama_mold.ai.setup(acid_mold, 10)
 
 healing_gel = Item(
     char="!",
     color=(102, 255, 102),
     name="Healing Gel",
-    consumable=consumable.HealingConsumable(amount=4),
+    consumable=consumable.HealingConsumable(amount=7),
     inspect_message="A Small, green-glowing piece of smile. It has a some-what apple taste.",
+)
+XL_healing_gel = Item(
+    char="!",
+    color=(0, 255, 0),
+    name="XL Healing Gel",
+    consumable=consumable.HealingConsumable(amount=18),
+    inspect_message="A Extra Large healing Gel. Don't choke while gobbling it up!",
 )
 taser = Item(
     char="~",
