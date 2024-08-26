@@ -73,7 +73,7 @@ mama_mold = Actor(
     equipment=Equipment(),
     inspect_message="It's a big slime mold. It's trying to reproduce, and use its offspring to defend itself from you."
 )
-mama_mold.ai.setup(acid_mold, 10)
+mama_mold.ai.setup(acid_mold, 8)
 
 healing_gel = Item(
     char="!",

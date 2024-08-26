@@ -126,6 +126,7 @@ class SpawnerEnemy(BaseAI):
         super().__init__(entity)
 
         self.is_setup = False
+        self.flee_position = None
 
     def setup(self,spawned_entity: Actor, spawn_rate: int):
         self.spawned_entity = spawned_entity
@@ -169,23 +170,27 @@ class SpawnerEnemy(BaseAI):
 
         # If the distance is less than 5, move away from the player.
         if distance < 5:
-            # Get the direction to the player.
-            direction_x = self.engine.player.x - self.entity.x
-            direction_y = self.engine.player.y - self.entity.y
+            if not self.flee_position:
+                # Get a flee position, that is more than 5 tiles away from the player, but less than 20 tiles away.
+                self.flee_position = (
+                    self.entity.x + random.randint(-5, 20),
+                    self.entity.y + random.randint(-5, 20),
+                )
 
-            # Normalize the direction.
-            direction_x = max(min(direction_x, 1), -1)
-            direction_y = max(min(direction_y, 1), -1)
+                while not self.engine.game_map.in_bounds(*self.flee_position) or self.engine.game_map.get_blocking_entity_at_location(*self.flee_position) or self.engine.game_map.tiles["walkable"][self.flee_position[0], self.flee_position[1]] == False:
+                    self.flee_position = (
+                        self.entity.x + random.randint(-5, 20),
+                        self.entity.y + random.randint(-5, 20),
+                    )
+            else:
+                # Get the direction to the flee position.
+                self.path = self.get_path_to(self.flee_position[0], self.flee_position[1])
 
-            # Round the direction.
-            direction_x = -round(direction_x)
-            direction_y = -round(direction_y)
-
-            # Move the spawner in the direction of the player.
-            return MovementAction(
-                self.entity, direction_x, direction_y,
-            ).perform()
-
+                if self.path:
+                    dest_x, dest_y = self.path.pop(0)
+                    return MovementAction(
+                        self.entity, dest_x - self.entity.x, dest_y - self.entity.y,
+                    ).perform()
 
         # Add 1 to the spawn timer.
         self.spawn_timer += 1
