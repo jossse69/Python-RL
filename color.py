@@ -2,6 +2,9 @@ white = (255, 255, 255)
 black = (0, 0, 0)
 red = (255, 0, 0)
 
+bg_lab = (0, 0, 45)
+current_bg = bg_lab
+
 player_atk = (255, 153, 0)
 enemy_atk = (153, 0, 0)
 needs_target = (51, 153, 255)

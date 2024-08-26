@@ -1,5 +1,5 @@
 from typing import Tuple
-
+from color import current_bg
 import numpy as np  # type: ignore
 
 # Tile graphics structured type compatible with Console.tiles_rgb.
@@ -23,7 +23,7 @@ tile_dt = np.dtype(
 )
 
 # SHROUD represents unexplored, unseen tiles
-SHROUD = np.array((ord(" "), (255, 255, 255), (0, 0, 0)), dtype=graphic_dt)
+SHROUD = np.array((ord(" "), (255, 255, 255), (current_bg)), dtype=graphic_dt)
 
 def new_tile(
     *,  # Enforce the use of keywords, so that parameter order doesn't matter.
@@ -38,15 +38,15 @@ def new_tile(
 
 
 floor = new_tile(
-    walkable=True, transparent=True, light=(ord("."), (102, 0, 51), (0, 0, 0)), dark=(ord("."), (51, 51, 51), (0, 0, 0)), autotile=False
+    walkable=True, transparent=True, light=(ord("."), (102, 0, 51), current_bg), dark=(ord("."), (51, 51, 51), (current_bg)), autotile=False
 )
 wall = new_tile(
-    walkable=False, transparent=False, light=(ord(" "), (153, 0, 153), (0,0,0)), dark=(ord(" "), (51, 51, 51), (0, 0, 0)), autotile=True
+    walkable=False, transparent=False, light=(ord(" "), (153, 0, 153), current_bg), dark=(ord(" "), (51, 51, 51), (current_bg)), autotile=True
 )
 down_stairs = new_tile(
     walkable=True,
     transparent=True,
-    dark=(ord(">"), (0, 100, 100), (0, 0 ,0)),
-    light=(ord(">"), (255, 204, 102), (0, 0, 0)),
+    dark=(ord(">"), (0, 100, 100), (current_bg)),
+    light=(ord(">"), (255, 204, 102), (current_bg)),
     autotile=False
 )

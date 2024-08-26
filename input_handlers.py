@@ -551,7 +551,7 @@ class LevelUpEventHandler(AskUserEventHandler):
             x=x + 1,
             y=6,
             fg=color.text_console,
-            string=f"c) Agility (+1 defense, from {self.engine.player.fighter.defense})".upper(),
+            string=f"c) Agility (+5% dodge chance, from {self.engine.player.fighter.dodge}%)".upper(),
         )
 
     def ev_keydown(self, event: tcod.event.KeyDown) -> Optional[ActionOrHandler]:
@@ -565,7 +565,7 @@ class LevelUpEventHandler(AskUserEventHandler):
             elif index == 1:
                 player.level.increase_power()
             else:
-                player.level.increase_defense()
+                player.level.increase_dodge(5)
         else:
             self.engine.message_log.add_message("Invalid entry.", color.invalid)
 
@@ -600,7 +600,7 @@ class CharacterScreenEventHandler(AskUserEventHandler):
             x=x,
             y=y,
             width=width,
-            height=7,
+            height=8,
             title=self.TITLE,
             clear=True,
             fg=color.text_console,
@@ -626,3 +626,6 @@ class CharacterScreenEventHandler(AskUserEventHandler):
         console.print(
             x=x + 1, y=y + 5, fg=color.text_console, string=f"Defense: {self.engine.player.fighter.defense}".upper()
         )
+        console.print(
+            x=x + 1, y=y + 6,  fg=color.text_console, string=f"Dodge chance: {self.engine.player.fighter.dodge}%".upper()
+            )

@@ -4,6 +4,7 @@ from typing import Optional, Tuple, TYPE_CHECKING
 
 import color
 import exceptions
+import random
 if TYPE_CHECKING:
     from engine import Engine
     from entity import Actor, Entity, Item
@@ -80,6 +81,15 @@ class MeleeAction(ActionWithDirection):
         target = self.target_actor
         if not target:
             raise exceptions.Impossible("Nothing to attack.")
+
+        # Chance for the attacker to dodge, based on his dodge chance
+        roll = random.randint(1, 100)
+        if roll <= target.fighter.dodge:
+            self.engine.message_log.add_message(
+                f"{self.entity.name.capitalize()} Tries to attack, but {target.name.capitalize()} dodges the attack!",
+                color.status_effect_applied
+            )
+            return
 
         damage = self.entity.fighter.power - target.fighter.defense
 

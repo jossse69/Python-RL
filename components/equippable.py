@@ -17,11 +17,13 @@ class Equippable(BaseComponent):
         equipment_type: EquipmentType,
         power_bonus: int = 0,
         defense_bonus: int = 0,
+        dodge_bonus: int = 0,
     ):
         self.equipment_type = equipment_type
 
         self.power_bonus = power_bonus
         self.defense_bonus = defense_bonus
+        self.dodge_bonus = dodge_bonus
 
 class PocketKinfe(Equippable):
     def __init__(self) -> None:

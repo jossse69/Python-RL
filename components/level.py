@@ -66,9 +66,14 @@ class Level(BaseComponent):
 
         self.increase_level()
 
-    def increase_defense(self, amount: int = 1) -> None:
-        self.parent.fighter.base_defense += amount
+    def increase_dodge(self, amount: int = 1) -> None:
+        self.parent.fighter.base_dodge += amount
 
-        self.engine.message_log.add_message("Your movements are getting swifter!")
+        # Cap at 50%
+        if self.parent.fighter.base_dodge > 50:
+            self.parent.fighter.base_dodge = 50
+            self.engine.message_log.add_message("You are at your max dodge chance! Increase your dodge chance with some sort of special gear.")
+
+        self.engine.message_log.add_message("You are more dodgy!")
 
         self.increase_level()
