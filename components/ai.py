@@ -139,7 +139,9 @@ class SpawnerEnemy(BaseAI):
         if not self.is_setup or not self.engine.game_map.visible[self.entity.x, self.entity.y]:
             return WaitAction(self.entity).perform()
 
-        
+        # If we are on the flee position, set it to none
+        if self.flee_position and self.entity.x == self.flee_position[0] and self.entity.y == self.flee_position[1]:
+            self.flee_position = None
 
         # If the spawn timer is greater than the spawn rate, spawn a new enemy.
         if self.spawn_timer >= self.spawn_rate:
@@ -171,26 +173,26 @@ class SpawnerEnemy(BaseAI):
         # If the distance is less than 5, move away from the player.
         if distance < 5:
             if not self.flee_position:
-                # Get a flee position, that is more than 5 tiles away from the player, but less than 20 tiles away.
+                # Get a flee position, that is around 20 tiles away.
                 self.flee_position = (
-                    self.entity.x + random.randint(-5, 20),
-                    self.entity.y + random.randint(-5, 20),
+                    self.entity.x + random.randint(-20, 20),
+                    self.entity.y + random.randint(-20, 20),
                 )
 
                 while not self.engine.game_map.in_bounds(*self.flee_position) or self.engine.game_map.get_blocking_entity_at_location(*self.flee_position) or self.engine.game_map.tiles["walkable"][self.flee_position[0], self.flee_position[1]] == False:
                     self.flee_position = (
-                        self.entity.x + random.randint(-5, 20),
-                        self.entity.y + random.randint(-5, 20),
+                        self.entity.x + random.randint(-20, 20),
+                        self.entity.y + random.randint(-20, 20),
                     )
-            else:
-                # Get the direction to the flee position.
-                self.path = self.get_path_to(self.flee_position[0], self.flee_position[1])
+            
+            # Get the direction to the flee position.
+            self.path = self.get_path_to(self.flee_position[0], self.flee_position[1])
 
-                if self.path:
-                    dest_x, dest_y = self.path.pop(0)
-                    return MovementAction(
-                        self.entity, dest_x - self.entity.x, dest_y - self.entity.y,
-                    ).perform()
+            if self.path:
+                dest_x, dest_y = self.path.pop(0)
+                return MovementAction(
+                    self.entity, dest_x - self.entity.x, dest_y - self.entity.y,
+                ).perform()
 
         # Add 1 to the spawn timer.
         self.spawn_timer += 1
