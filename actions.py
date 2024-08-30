@@ -3,11 +3,12 @@ from __future__ import annotations
 from typing import Optional, Tuple, TYPE_CHECKING
 
 import color
+from entity import Actor
 import exceptions
 import random
 if TYPE_CHECKING:
     from engine import Engine
-    from entity import Actor, Entity, Item
+    from entity import Actor, Entity, Item, NPC
 
 
 class Action:
@@ -50,6 +51,11 @@ class ActionWithDirection(Action):
     def target_actor(self) -> Optional[Actor]:
         """Return the actor at this actions destination."""
         return self.engine.game_map.get_actor_at_location(*self.dest_xy)
+    
+    @property
+    def target_NPC(self) -> Optional[NPC]:
+        """Return the NPC at this actions destination."""
+        return self.engine.game_map.get_NPC_at_location(*self.dest_xy)
 
     @property
     def blocking_entity(self) -> Optional[Entity]:
@@ -131,11 +137,24 @@ class MovementAction(ActionWithDirection):
 class BumpAction(ActionWithDirection):
     def perform(self) -> None:
         if self.target_actor:
-            return MeleeAction(self.entity, self.dx, self.dy).perform()
-
+                return MeleeAction(self.entity, self.dx, self.dy).perform()
+        elif self.target_NPC:
+                return InteractNPCAction(self.entity, self.dx, self.dy).perform()
         else:
             return MovementAction(self.entity, self.dx, self.dy).perform()
         
+class InteractNPCAction(ActionWithDirection):
+    def __init__(self, entity: Actor, dx: int, dy: int):
+        super().__init__(entity, dx, dy)
+
+    def perform(self) -> None:
+        if self.target_NPC:
+            input_handler = self.target_NPC.interact()
+            if input_handler:
+                self.engine.future_event_handler = input_handler
+        else:
+            raise exceptions.Impossible("There's nothing to interact with.")
+
 class WaitAction(Action):
     def perform(self) -> None:
         pass

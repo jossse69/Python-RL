@@ -192,12 +192,47 @@ def generate_dungeon(
                 dungeon.set_tile(x, y, tile_types.floor)
                 center_of_last_room = new_room.center
 
-        place_entities(new_room, dungeon, engine.game_world.current_floor)
+        if len(rooms) != 0:
+            place_entities(new_room, dungeon, engine.game_world.current_floor)
 
         dungeon.tiles[center_of_last_room] = tile_types.down_stairs
         dungeon.downstairs_location = center_of_last_room
 
         # Finally, append the new room to the list.
         rooms.append(new_room)
+
+    return dungeon
+
+def generate_shopkeep_floor(
+    map_width: int,
+    map_height: int,
+    engine: Engine,
+) -> GameMap:
+    """Creates the special floor for the shopkeep."""
+
+    player = engine.player
+    dungeon = GameMap(engine, map_width, map_height, entities=[player])
+
+    # Dig out a room in the center of the map.
+    center_x = int(dungeon.width / 2)
+    center_y = int(dungeon.height / 2)
+
+    room_width = int(dungeon.width / 8)
+    room_height = int(dungeon.height / 14)
+
+    for x in range(center_x - room_width,  center_x + room_width):
+        for y in range(center_y - room_height, center_y + room_height):
+            dungeon.set_tile(x, y, tile_types.floor)
+
+    # Set the player's position in the left-center of the room.
+    player.place(center_x - (room_width - 2), center_y, dungeon)
+
+    # Place a shopkeep in the right-center of the room.
+    npc = entity_factories.shopkeep_npc.spawn(dungeon, center_x, center_y)
+    npc.init_handler(engine)
+
+    # And set the downstairs location in the right-center of the room.
+    dungeon.downstairs_location = (center_x + (room_width - 2), center_y)
+    dungeon.tiles[dungeon.downstairs_location] = tile_types.down_stairs
 
     return dungeon

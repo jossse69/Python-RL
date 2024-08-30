@@ -4,6 +4,7 @@ from typing import Callable, Optional, Tuple, TYPE_CHECKING, Union
 
 import tcod.event
 from tcod import libtcodpy
+import copy
 
 import actions
 from actions import (
@@ -19,6 +20,7 @@ import os
 if TYPE_CHECKING:
     from engine import Engine
     from entity import Item
+
 
 MOVE_KEYS = {
     # Arrow keys.
@@ -127,6 +129,13 @@ class EventHandler(BaseEventHandler):
                 return GameOverEventHandler(self.engine)
             elif self.engine.player.level.requires_level_up:
                 return LevelUpEventHandler(self.engine)
+            
+            # Did the action set the future_event_handler attribute? If so, change the current handler.
+            if self.engine.future_event_handler is not None:
+                handler = self.engine.future_event_handler
+                self.engine.future_event_handler = None
+                return handler
+
             return MainGameEventHandler(self.engine)  # Return to the main handler.
         return self
 
@@ -190,8 +199,6 @@ class MainGameEventHandler(EventHandler):
             return LookHandler(self.engine)
         elif key == tcod.event.KeySym.c:
             return CharacterScreenEventHandler(self.engine)
-                
-
 
         # No valid key was pressed
         return action
@@ -233,7 +240,7 @@ class HistoryViewer(EventHandler):
         # Draw a frame with a custom banner title.
         log_console.draw_frame(0, 0, log_console.width, log_console.height, fg=color.text_console)
         log_console.print_box(
-            0, 0, log_console.width, 1, "┤MESSAGE LOG HISTORY├", alignment=libtcodpy.CENTER,fg=color.text_console
+            0, 0, log_console.width, 1, "MESSAGE LOG HISTORY", alignment=libtcodpy.CENTER,bg=color.text_console, fg=color.black
         )
 
         # Render the message log using the cursor parameter.
@@ -629,3 +636,157 @@ class CharacterScreenEventHandler(AskUserEventHandler):
         console.print(
             x=x + 1, y=y + 6,  fg=color.text_console, string=f"Dodge chance: {self.engine.player.fighter.dodge}%".upper()
             )
+        
+
+class SellItemsEventHandler(InventoryEventHandler):
+    TITLE = "WHAT TO SELL?"
+
+    def __init__(self, engine: actions.Engine, previous_handler: EventHandler):
+        super().__init__(engine)
+
+        self.previous_handler = previous_handler
+
+    def on_exit(self) -> Action | BaseEventHandler | None:
+        return self.previous_handler
+    
+    def on_item_selected(self, item: actions.Item) -> Action | BaseEventHandler | None:
+        # TODO: Sell the item.
+        self.engine.player.inventory.remove(item)
+        # If the player is eqiupping the item, then remove it from the equipment.
+        if self.engine.player.equipment.weapon == item:
+            self.engine.player.equipment.toggle_equip(item)
+        elif self.engine.player.equipment.armor == item:
+            self.engine.player.equipment.toggle_equip(item)
+
+        self.engine.message_log.add_message(f"You sold the {item.name} for {item.value} Credits.", color.health_recovered)
+
+        # Add the credits to the player.
+        self.engine.game_world.credits += item.value
+
+        return self.previous_handler # Return to the previous handler.
+
+
+class BuyItemsEventHandler(AskUserEventHandler):
+    TITLE = "WHAT TO BUY?"
+
+    def __init__(self, engine: actions.Engine, previous_handler: EventHandler):
+        super().__init__(engine)
+
+        from entity_factories import healing_gel, XL_healing_gel, taser
+        self.previous_handler = previous_handler
+        self.items = [
+            copy.deepcopy(healing_gel),
+            copy.deepcopy(XL_healing_gel),
+            copy.deepcopy(taser) 
+        ]
+
+    def on_exit(self) -> Action | BaseEventHandler | None:
+        return self.previous_handler
+    
+    def on_render(self, console: tcod.event.Any) -> None:
+        super().on_render(console)
+
+        if self.engine.player.x <= 30:
+            x = 40
+        else:
+            x = 0
+
+        y = 0
+
+        width = len(self.TITLE) + 19
+
+        console.draw_frame(
+            x=x,
+            y=y,
+            width=width,
+            height=16,
+            title=self.TITLE,
+            clear=True,
+            fg=color.text_console,
+            bg=(0, 0, 0),
+        )
+
+        # Draw the avaible items in a list, similar to the inventory menu.
+        # TODO: Add the items in, for now its placeholder items.
+        for i, item in enumerate(self.items):
+            item_key = chr(ord("a") + i)
+            console.print(
+                x=x + 1,
+                y=y + 1 + i,
+                fg=color.text_console,
+                string=f"{item_key}) {item.name} - {item.value} Credit".upper(),
+            )
+
+    def ev_keydown(self, event: tcod.event.KeyDown) -> Optional[ActionOrHandler]:
+        player = self.engine.player
+        key = event.sym
+        index = key - tcod.event.KeySym.a
+
+        if 0 <= index <= 2:
+            item = copy.deepcopy(self.items[index])
+
+            if self.engine.game_world.credits >= item.value:
+                player.inventory.add(item)
+                self.engine.message_log.add_message(f"You bought the {item.name} for {item.value} Credits.", color.health_recovered)
+                self.engine.game_world.credits -= item.value
+            else:
+                self.engine.message_log.add_message("You don't have enough credits.", color.invalid)
+            
+
+        elif key != tcod.event.KeySym.ESCAPE:
+            self.engine.message_log.add_message("Invalid entry.", color.invalid)
+
+        
+        return super().ev_keydown(event)
+                
+
+
+class ShopkeepMenuEventHandler(AskUserEventHandler):
+    TITLE = "SHOP"
+
+    def on_render(self, console: tcod.Console) -> None:
+        super().on_render(console)
+
+        if self.engine.player.x <= 30:
+            x = 40
+        else:
+            x = 0
+
+        y = 0
+
+        width = len(self.TITLE) + 4
+
+        console.draw_frame(
+            x=x,
+            y=y,
+            width=width + 29,
+            height=8,
+            title=self.TITLE,
+            clear=True,
+            fg=color.text_console,
+            bg=(0, 0, 0),
+        )
+
+        # Draw a text wellcome text.
+        console.print(x=x + 1, y=y + 1, fg=color.text_console, string="'What can i do to ya, Human?'")
+
+        # Draw options. (Sell or Buy items)
+        console.print(x=x + 1, y=y + 3, fg=color.text_console, string="a) Sell items".upper())
+        console.print(x=x + 1, y=y + 4, fg=color.text_console, string="b) Buy items".upper())
+
+    def ev_keydown(self, event: tcod.event.KeyDown) -> Optional[ActionOrHandler]:
+        key = event.sym
+        index = key - tcod.event.KeySym.a
+
+        if 0 <= index <= 1:
+            if index == 0:
+                return SellItemsEventHandler(self.engine, self)
+            else:
+                return BuyItemsEventHandler(self.engine, self)
+        elif key != tcod.event.KeySym.ESCAPE:
+            self.engine.message_log.add_message("Invalid entry.", color.invalid)
+        else:
+            self.engine.message_log.add_message("You leave the shop.")
+
+
+        return super().ev_keydown(event)

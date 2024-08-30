@@ -1,11 +1,13 @@
 from __future__ import annotations
 
+import random
 from typing import Iterable, Iterator, Optional, TYPE_CHECKING
 
 import numpy as np  # type: ignore
 from tcod.console import Console
 from color import current_bg
-from entity import Actor, Item
+import color
+from entity import Actor, Item, NPC
 import tile_types
 
 if TYPE_CHECKING:
@@ -36,6 +38,15 @@ class GameMap:
             entity
             for entity in self.entities
             if isinstance(entity, Actor) and entity.is_alive
+        )
+
+    @property
+    def NPCs(self) -> Iterator[NPC]:
+        """Iterate over this maps living NPCs."""
+        yield from (
+            entity
+            for entity in self.entities
+            if isinstance(entity, NPC)
         )
 
     @property
@@ -88,6 +99,13 @@ class GameMap:
         for actor in self.actors:
             if actor.x == x and actor.y == y:
                 return actor
+
+        return None
+    
+    def get_NPC_at_location(self, x: int, y: int) -> Optional[NPC]:
+        for npc in self.NPCs:
+            if npc.x == x and npc.y == y:
+                return npc
 
         return None
 
@@ -215,7 +233,8 @@ class GameWorld:
         max_rooms: int,
         room_min_size: int,
         room_max_size: int,
-        current_floor: int = 0
+        current_floor: int = 0,
+        starting_credits: int = 0
     ):
         self.engine = engine
 
@@ -229,17 +248,45 @@ class GameWorld:
 
 
         self.current_floor = current_floor
+        self.credits = starting_credits
+        
+        self.floors_without_shop = 0
 
     def generate_floor(self) -> None:
-        from procgen import generate_dungeon
+        from procgen import generate_dungeon, generate_shopkeep_floor
+
+        floor_type = "normal"
 
         self.current_floor += 1
 
-        self.engine.game_map = generate_dungeon(
+        if self.current_floor == 1:
+            pass # Guarantee the first floor is normal
+        else:
+            roll = random.randint(0, 100)
+            if roll < 10 + (10 * self.floors_without_shop): # 10% chance to be a shop floor, and increase the chance as you go down until you find a shop floor.
+                floor_type = "shop"
+                self.floors_without_shop = 0
+            else:
+                self.floors_without_shop += 1
+
+
+        if floor_type == "normal":
+            self.engine.game_map = generate_dungeon(
             max_rooms=self.max_rooms,
             room_min_size=self.room_min_size,
             room_max_size=self.room_max_size,
             map_width=self.map_width,
             map_height=self.map_height,
             engine=self.engine,
-        )
+            )
+        elif floor_type == "shop":
+            self.engine.game_map = generate_shopkeep_floor(
+            map_width=self.map_width,
+            map_height=self.map_height,
+            engine=self.engine,
+            )
+
+            # Tell the player about his lucky find!
+            self.engine.message_log.add_message("Lucky find! You find a shopkeeper in this floor!", color.health_recovered)
+        else:
+            raise Exception("Invalid floor type")

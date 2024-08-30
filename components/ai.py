@@ -161,7 +161,8 @@ class SpawnerEnemy(BaseAI):
                     return WaitAction(self.entity).perform() # If the spawner is not able to find a valid location, it will wait.
             
             # Spawn the new enemy.
-            self.spawned_entity.spawn(self.engine.game_map, x, y)
+            self.spawned_entity.spawn(self.engine.game_map, x, y, True) # Make sure to set the spawned entity to be a swarm entity.
+
             # Add a message to the message log.
             self.engine.message_log.add_message(
                 f"The {self.entity.name} spawned a new {self.spawned_entity.name}!"

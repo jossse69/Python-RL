@@ -3,8 +3,9 @@ from components import consumable, equippable
 from components.fighter import Fighter
 from components.inventory import Inventory
 from components.level import Level
-from entity import Actor, Item
+from entity import NPC, Actor, Item
 from components.equipment import Equipment
+from input_handlers import ShopkeepMenuEventHandler
 
 player = Actor(
     char="@",
@@ -81,6 +82,7 @@ healing_gel = Item(
     name="Healing Gel",
     consumable=consumable.HealingConsumable(amount=7),
     inspect_message="A Small, green-glowing piece of smile. It has a some-what apple taste.",
+    value=10,
 )
 XL_healing_gel = Item(
     char="!",
@@ -88,6 +90,7 @@ XL_healing_gel = Item(
     name="XL Healing Gel",
     consumable=consumable.HealingConsumable(amount=18),
     inspect_message="A Extra Large healing Gel. Don't choke while gobbling it up!",
+    value=25,
 )
 taser = Item(
     char="~",
@@ -95,6 +98,7 @@ taser = Item(
     name="Taser",
     consumable=consumable.EletricDamageConsumable(damage=20, maximum_range=5),
     inspect_message="It's a bit old, and it's bolts go to whatever they want, but it's still effective.",
+    value=30,
 )
 stun_gun = Item(
     char="~",
@@ -102,6 +106,7 @@ stun_gun = Item(
     name="Stun Gun",
     consumable=consumable.ConfusionConsumable(number_of_turns=10),
     inspect_message="Bright flashes always makes everyone disoriented. I'd get confused if i were to look at it.",
+    value=10,
 )
 fireball_gun = Item(
     char="~",
@@ -109,18 +114,21 @@ fireball_gun = Item(
     name="Fireball Gun",
     consumable=consumable.FireballDamageConsumable(damage=12, radius=3),
     inspect_message="It's a gun that shoots fireballs. Like the ones from fantasy games. It's pretty effective!",
+    value=50,
 )
 
 pocket_kinfe = Item(    char="/", color=(102, 255, 255), name="Pocket kinfe", equippable=equippable.PocketKinfe(),
-    inspect_message="The most pesonal kinfe you'll ever find. Use it if you're in a pinch."
+    inspect_message="The most pesonal kinfe you'll ever find. Use it if you're in a pinch.",
+    value=10,
 )
-
 old_kinfe = Item(
     char="/", color=(102, 255, 255), name="Old kinfe", equippable=equippable.OldKinfe(),
-    inspect_message="It's a old rusty kitchen kinfe. It's not very sharp, but it's still effective."
+    inspect_message="It's a old rusty kitchen kinfe. It's not very sharp, but it's still effective.",
+    value=50,
 )
 sharp_kinfe = Item(char="/", color=(102, 255, 255), name="Sharp kinfe", equippable=equippable.SharpKinfe(),
-    inspect_message="It's a kitchen kinfe that was not let outside at least."
+    inspect_message="It's a kitchen kinfe that was not let outside at least.",
+    value=100,
 )
 
 scrap_chest_plate = Item(
@@ -129,15 +137,26 @@ scrap_chest_plate = Item(
     name="Scrap chest plate",
     equippable=equippable.ScrapChestPlate(),
     inspect_message="It's a chest plate made of scrap metal. It's not very strong, but it's still effective.",
+    value=25,
 )
 iron_chest_plate = Item(
     char="[",
     color=(102, 255, 255),
     name="Iron chest plate",
     equippable=equippable.IronChestPlate(),
-    inspect_message="It's a chest plate made of iron. Put it on and you'll be able to take a beating.")
-
+    inspect_message="It's a chest plate made of iron. Put it on and you'll be able to take a beating.",
+    value=50,
+    )
 steel_chest_plate  = Item(
     char="[", color=(102, 255, 255), name="Steel chest plate", equippable=equippable.SteelChestPlate(),
-    inspect_message="It's a chest plate, now made of steel. You'll be able to take quite the beating!"
+    inspect_message="It's a chest plate, now made of steel. You'll be able to take quite the beating!",
+    value=100,
+)
+
+shopkeep_npc = NPC(
+    char="@",
+    color=(102, 255, 102),
+    name="Shop Keeper",
+    interact_input_handler_cls=ShopkeepMenuEventHandler,
+    inspect_message="It's a shop keeper. He's a friendly humanoid robot. He's selling some items. At least some freind in this world.",
 )

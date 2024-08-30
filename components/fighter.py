@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import random
 from typing import TYPE_CHECKING
 
 import color
@@ -99,4 +100,12 @@ class Fighter(BaseComponent):
 
         self.engine.message_log.add_message(death_message, death_message_color)
 
-        self.engine.player.level.add_xp(self.parent.level.xp_given)
+        if not self.parent.is_swarm: # If this is a swarm, then it will not give XP or Credits when it dies.
+            self.engine.player.level.add_xp(self.parent.level.xp_given)
+
+            # Have a chance to find credits when the enemy dies.
+            roll = random.randint(1, 100)
+            if roll <= 45:
+                amount = self.max_hp // 4 # Give 25% of the entity's max HP as credits (rounded down).
+                self.engine.game_world.credits += amount
+                self.engine.message_log.add_message(f"You found {amount} credits!", color.health_recovered)

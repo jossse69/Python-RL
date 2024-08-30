@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from typing import List, TYPE_CHECKING
 
+import color
 from components.base_component import BaseComponent
 
 if TYPE_CHECKING:
@@ -23,3 +24,22 @@ class Inventory(BaseComponent):
         item.place(self.parent.x, self.parent.y, self.gamemap)
 
         self.engine.message_log.add_message(f"You dropped the {item.name}.")
+
+    def remove(self, item: Item) -> None:
+        """
+        Removes an item from the inventory.
+        """
+        self.items.remove(item)
+
+    def add(self, item: Item) -> None:
+        """
+        Adds an item to the inventory.
+        """
+        if len(self.items) >= self.capacity:
+            self.engine.message_log.add_message(
+                "You cannot carry any more, your inventory is full!", fg=color.impossible
+            )
+            return
+
+        item.parent = self
+        self.items.append(item)

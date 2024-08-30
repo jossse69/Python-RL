@@ -27,6 +27,7 @@ class Engine:
         self.message_log = MessageLog()
         self.mouse_location = (0, 0)
         self.player = player
+        self.future_event_handler = None # Use this to set the next event handler of the engine once the next player turn is started.
 
     def handle_enemy_turns(self) -> None:
         for entity in set(self.game_map.actors) - {self.player}:
@@ -66,6 +67,11 @@ class Engine:
             console=console,
             dungeon_level=self.game_world.current_floor,
             location=(0, 47),
+        )
+        render_functions.render_credit_amount(
+            console=console,
+            credit_amount=self.game_world.credits,
+            location=(0, 48),
         )
 
         render_functions.render_names_at_mouse_location(

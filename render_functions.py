@@ -47,6 +47,16 @@ def render_dungeon_level(
 
     console.print(x=x, y=y, string=f"Floor: {dungeon_level}")
 
+def render_credit_amount(
+    console: Console, credit_amount: int, location: Tuple[int, int]
+) -> None:
+    """
+    Render the amount of credits the player has, at the given location.
+    """
+    x, y = location
+
+    console.print(x=x, y=y, string=f"Credits: {credit_amount}")
+
 def render_names_at_mouse_location(
     console: Console, x: int, y: int, engine: Engine
 ) -> None:
