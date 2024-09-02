@@ -10,7 +10,7 @@ defaults:
     shell: bash
 
 env:
-  python-version: "3.8"
+  python-version: "3.12.5"
   pyinstaller-version: "4.3"
   project-name: python-rl
 
