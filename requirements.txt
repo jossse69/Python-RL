@@ -1,2 +1,3 @@
 tcod>=11.13
 numpy>=1.18
+PyInstaller>=4.1
