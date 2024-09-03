@@ -17,6 +17,7 @@ if TYPE_CHECKING:
     from components.level import Level
     from game_map import GameMap
     from input_handlers import EventHandler
+    from status_effect import StatusEffect
 
 
 T = TypeVar("T", bound="Entity")
@@ -52,6 +53,7 @@ class Entity:
         self.render_order = render_order
         self.inspect_message = inspect_message
         self.is_swarm = False
+        self.last_position = (x, y)
         if parent:
             # If parent isn't provided now then it will be set later.
             self.parent = parent
@@ -95,6 +97,7 @@ class Entity:
         """
         Moves the entity by a given amount
         """
+        self.last_position = (self.x, self.y)
         self.x += dx
         self.y += dy
 
@@ -118,6 +121,7 @@ class Actor(Entity):
         fighter: Fighter,
         inventory: Inventory,
         level: Level,
+        effect: Optional[StatusEffect] = None,
     ):
         super().__init__(
             x=x,
@@ -131,6 +135,7 @@ class Actor(Entity):
         )
 
         self.ai: Optional[BaseAI] = ai_cls(self)
+        self.ai.set_effect(effect)
 
         self.equipment: Equipment = equipment
         self.equipment.parent = self

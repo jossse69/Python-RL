@@ -6,14 +6,23 @@ from typing import List, Optional, Tuple, TYPE_CHECKING
 import numpy as np  # type: ignore
 import tcod
 
-from actions import Action, BumpAction, MeleeAction, MovementAction, WaitAction
+from actions import Action, MeleeAction, MovementAction, WaitAction
+from entity import Actor
 
 
 if TYPE_CHECKING:
     from entity import Actor
+    from status_effect import StatusEffect
 
 
 class BaseAI(Action):
+
+    def __init__(self, entity: Actor) -> None:
+        super().__init__(entity)
+
+    def set_effect(self, effect: Optional[StatusEffect] = None) -> None:
+        self.effect = effect
+ 
 
     def perform(self) -> None:
         raise NotImplementedError()
@@ -52,6 +61,7 @@ class HostileEnemy(BaseAI):
         super().__init__(entity)
         self.path: List[Tuple[int, int]] = []
 
+
     def perform(self) -> None:
         target = self.engine.player
         dx = target.x - self.entity.x
@@ -60,7 +70,7 @@ class HostileEnemy(BaseAI):
 
         if self.engine.game_map.visible[self.entity.x, self.entity.y]:
             if distance <= 1:
-                return MeleeAction(self.entity, dx, dy).perform()
+                return MeleeAction(self.entity, dx, dy, self.effect).perform()
 
             self.path = self.get_path_to(target.x, target.y)
 
@@ -110,9 +120,8 @@ class ConfusedEnemy(BaseAI):
 
             self.turns_remaining -= 1
 
-            # The actor will either try to move or attack in the chosen random direction.
-            # Its possible the actor will just bump into the wall, wasting a turn.
-            return BumpAction(self.entity, direction_x, direction_y,).perform()
+            # The actor will either try to move in the randomly chosen direction.
+            return MovementAction(self.entity, direction_x, direction_y,).perform()
     
 
 class SpawnerEnemy(BaseAI):

@@ -37,6 +37,11 @@ class Engine:
                 except exceptions.Impossible:
                     pass  # Ignore impossible action exceptions from AI.
 
+    def handle_status_effects(self) -> None:
+        for entity in set(self.game_map.actors):
+            entity.fighter.update_status_effects()
+
+
     def update_fov(self) -> None:
         """Recompute the visible area based on the players point of view."""
 

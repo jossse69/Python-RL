@@ -4,12 +4,14 @@ import random
 from typing import TYPE_CHECKING
 
 import color
+import copy
 
 from components.base_component import BaseComponent
 from render_order import RenderOrder
 
 if TYPE_CHECKING:
     from entity import Actor
+    from status_effect import StatusEffect
 
 class Fighter(BaseComponent):
     parent: Actor
@@ -20,6 +22,8 @@ class Fighter(BaseComponent):
         self.base_dodge = base_dodge
         self.base_defence = base_defence
         self.base_power = base_power
+        self.status_effects = []
+
 
     @property
     def dodge(self) -> int:
@@ -78,6 +82,28 @@ class Fighter(BaseComponent):
         self.hp = new_hp_value
 
         return amount_recovered
+
+    def apply_status_effect(self, effect: StatusEffect) -> None:
+        for status_effect in self.status_effects:
+            if status_effect.name == effect.name:
+                status_effect.duration += effect.duration
+                return
+        self.status_effects.append(copy.deepcopy(effect))
+
+        self.engine.message_log.add_message(f"{self.parent.name} is now {effect.name}!", color.status_effect_applied)
+
+    def update_status_effects(self) -> None:
+        for status_effect in self.status_effects:
+            status_effect.on_tick(self.parent)
+            if status_effect.duration <= 0:
+                self.status_effects.remove(status_effect)
+                self.engine.message_log.add_message(f"{self.parent.name} is no longer {status_effect.name}.")
+
+    def has_status_effect(self, effect: StatusEffect) -> bool:
+        for status_effect in self.status_effects:
+            if status_effect.name == effect.name:
+                return True
+        return False
 
     def take_damage(self, amount: int) -> None:
         self.hp -= amount

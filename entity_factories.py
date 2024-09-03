@@ -6,6 +6,8 @@ from components.level import Level
 from entity import NPC, Actor, Item
 from components.equipment import Equipment
 from input_handlers import ShopkeepMenuEventHandler
+from status_effect import Poisoned, bleeding
+
 
 player = Actor(
     char="@",
@@ -50,7 +52,9 @@ hunter_humanoid = Actor(
     inventory=Inventory(capacity=0),
     level=Level(xp_given=150),
     equipment=Equipment(),
-    inspect_message="It's a mutated human, probably due to being exposed to irradiated places. It's now a reckless hunter, with sharp claws and skinny body, it wants to eat fresh flesh."
+    inspect_message="It's a mutated human, probably due to being exposed to irradiated places. It's now a reckless hunter, with sharp claws and skinny body, it wants to eat fresh flesh.",
+    effect=bleeding(duration=6, value=1),
+
 )
 acid_mold = Actor(
     char="m",
@@ -61,7 +65,9 @@ acid_mold = Actor(
     inventory=Inventory(capacity=0),
     level=Level(xp_given=50),
     equipment=Equipment(),
-    inspect_message="It's a slime mold, but it's acidic. Don't touch it! It's pains to the touch."
+    inspect_message="It's a slime mold, but it's acidic. Don't touch it! It's hurts to the touch.",
+    effect=Poisoned(duration=4, value=1),
+
 )
 mama_mold = Actor(
     char="M",

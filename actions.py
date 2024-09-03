@@ -6,9 +6,11 @@ import color
 from entity import Actor
 import exceptions
 import random
+
 if TYPE_CHECKING:
     from engine import Engine
     from entity import Actor, Entity, Item, NPC
+    from status_effect import StatusEffect
 
 
 class Action:
@@ -83,6 +85,11 @@ class ItemAction(Action):
             self.item.consumable.activate(self)
 
 class MeleeAction(ActionWithDirection):
+
+    def __init__(self, entity: Actor, dx: int, dy: int, effect: Optional[StatusEffect] = None):
+        super().__init__(entity, dx, dy)
+        self.effect = effect
+
     def perform(self) -> None:
         target = self.target_actor
         if not target:
@@ -110,6 +117,10 @@ class MeleeAction(ActionWithDirection):
                 attack_color
             )
             target.fighter.hp -= damage
+
+            # Apply the status effect to the target, if any.
+            if self.effect is not None:
+                target.fighter.apply_status_effect(self.effect)
         else:
             self.engine.message_log.add_message(
                 f"{attack_desc}, but does no damage.",
@@ -137,8 +148,10 @@ class MovementAction(ActionWithDirection):
 class BumpAction(ActionWithDirection):
     def perform(self) -> None:
         if self.target_actor:
+                self.entity.last_position = (self.entity.x, self.entity.y)
                 return MeleeAction(self.entity, self.dx, self.dy).perform()
         elif self.target_NPC:
+                self.entity.last_position = (self.entity.x, self.entity.y)
                 return InteractNPCAction(self.entity, self.dx, self.dy).perform()
         else:
             return MovementAction(self.entity, self.dx, self.dy).perform()
@@ -157,7 +170,7 @@ class InteractNPCAction(ActionWithDirection):
 
 class WaitAction(Action):
     def perform(self) -> None:
-        pass
+        self.entity.last_position = (self.entity.x, self.entity.y)
 
 class PickupAction(Action):
     """Pickup an item and add it to the inventory, if there is room for it."""
