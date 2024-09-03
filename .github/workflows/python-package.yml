@@ -57,6 +57,9 @@ jobs:
           PYTHONHASHSEED: 42 # Try to ensure deterministic results.
         run: |
           pyinstaller build.spec
+      - name: Copy data folder to build folder
+        run: |
+          cp -r data dist/
       # This step exists for debugging.  Such as checking if data files were included correctly by PyInstaller.
       - name: List distribution files
         run: |
