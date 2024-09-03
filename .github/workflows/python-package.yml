@@ -59,7 +59,7 @@ jobs:
           pyinstaller build.spec
       - name: Copy data folder to build folder
         run: |
-          cp -r data dist/${{ env.project-name }}/
+          cp -r data dist/PythonRl/data
       # This step exists for debugging.  Such as checking if data files were included correctly by PyInstaller.
       - name: List distribution files
         run: |
