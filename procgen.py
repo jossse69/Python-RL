@@ -26,8 +26,11 @@ max_monsters_by_floor = [
 item_chances: Dict[int, List[Tuple[Entity, int]]] = {
     0: [(entity_factories.healing_gel, 35)],
     2: [(entity_factories.stun_gun, 10), (entity_factories.old_kinfe, 5), (entity_factories.iron_chest_plate, 5), (entity_factories.XL_healing_gel, 5)],
-    4: [(entity_factories.taser, 25), (entity_factories.sharp_kinfe, 15)],
-    6: [(entity_factories.fireball_gun, 25), (entity_factories.steel_chest_plate, 12)],
+    4: [(entity_factories.taser, 25), (entity_factories.sharp_kinfe, 15), (entity_factories.spikey_chest_plate, 12)],
+    5: [(entity_factories.acid_kinfe, 15)],
+    6: [(entity_factories.fireball_gun, 25), (entity_factories.steel_chest_plate, 12), (entity_factories.professional_acid_kinfe, 15)],
+    7: [(entity_factories.steelpike_chest_plate, 15)],
+    8: [(entity_factories.acid_metal_chest_plate, 15)],
 }
 
 enemy_chances: Dict[int, List[Tuple[Entity, int]]] = {
@@ -36,6 +39,8 @@ enemy_chances: Dict[int, List[Tuple[Entity, int]]] = {
     5: [(entity_factories.rusty_automaton, 30)],
     6:[(entity_factories.hunter_humanoid, 40), (entity_factories.acid_mold, 40)],
     7: [(entity_factories.rusty_automaton, 60), (entity_factories.mama_mold, 40)],
+    8: [(entity_factories.rusty_automaton, 0), (entity_factories.hunter_humanoid, 65)],
+    9: [(entity_factories.slime_mold, 0)],
 }
 
 def get_max_value_for_floor(

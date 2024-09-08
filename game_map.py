@@ -110,6 +110,17 @@ class GameMap:
         return None
 
     def update_tile_at(self, x: int, y: int, tile: str) -> None:
+        # Set the "light" color of the tile to the current floor or wall color, if the tile is both solid and blocks vision
+        if tile["walkable"] and tile["transparent"]:
+            tile["light"]["fg"] = color.current_floor
+            tile["dark"]["fg"] = color.gray_scale_color(color.current_floor)
+        else:
+            tile["light"]["fg"] = color.current_wall
+            tile["dark"]["fg"] = color.gray_scale_color(color.current_wall)
+        tile["light"]["bg"] = color.current_bg
+        tile["dark"]["bg"] = color.current_bg
+
+        # Autotile the tile if it is an autotile
         if tile["autotile"]:
             # get the neighbors
             top_tile = self.tiles[x, y - 1] if y > 0 else None
@@ -191,6 +202,9 @@ class GameMap:
             # Set the first int if the "dark" nparray with the unicode of the ch
             tile["dark"]["ch"] = ord(ch)
             tile["light"]["ch"] = ord(ch)
+
+            
+
             
     def render(self, console: Console) -> None:
         """
@@ -258,6 +272,22 @@ class GameWorld:
         floor_type = "normal"
 
         self.current_floor += 1
+
+        if self.current_floor < 10:
+            # Use "The lab" colors for the tiles
+            color.current_bg = color.bg_lab
+            color.current_wall = color.wall_lab
+            color.current_floor = color.floor_lab
+            tile_types.SHROUD["fg"] = color.gray_scale_color(color.bg_lab)
+            tile_types.SHROUD["bg"] = color.bg_lab
+        elif self.current_floor >= 10:
+            # Use "The grotto" colors for the tiles
+            color.current_bg = color.bg_grotto
+            color.current_wall = color.wall_grotto
+            color.current_floor = color.floor_grotto
+            tile_types.SHROUD["fg"] = color.gray_scale_color(color.bg_grotto)
+            tile_types.SHROUD["bg"] = color.bg_grotto
+
 
         if self.current_floor == 1:
             pass # Guarantee the first floor is normal

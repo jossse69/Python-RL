@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import random
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Optional
 
 import color
 import copy
@@ -16,13 +16,14 @@ if TYPE_CHECKING:
 class Fighter(BaseComponent):
     parent: Actor
 
-    def __init__(self, hp: int, base_dodge: int, base_defence, base_power: int):
+    def __init__(self, hp: int, base_dodge: int, base_defence, base_power: int, immune_effects: Optional[list[type[StatusEffect]]] = None):
         self.max_hp = hp
         self._hp = hp
         self.base_dodge = base_dodge
         self.base_defence = base_defence
         self.base_power = base_power
         self.status_effects = []
+        self.immune_effects = immune_effects if immune_effects else []
 
 
     @property
@@ -84,6 +85,12 @@ class Fighter(BaseComponent):
         return amount_recovered
 
     def apply_status_effect(self, effect: StatusEffect) -> None:
+
+        # If the fighter is immune to the effect, then don't apply it.
+        for immune_effect in self.immune_effects:
+            if isinstance(effect, immune_effect):
+                return
+
         for status_effect in self.status_effects:
             if status_effect.name == effect.name:
                 status_effect.duration += effect.duration
@@ -95,7 +102,7 @@ class Fighter(BaseComponent):
     def update_status_effects(self) -> None:
         for status_effect in self.status_effects:
             status_effect.on_tick(self.parent)
-            if status_effect.duration <= 0:
+            if status_effect.duration <= 0 and status_effect in self.status_effects:
                 self.status_effects.remove(status_effect)
                 self.engine.message_log.add_message(f"{self.parent.name} is no longer {status_effect.name}.")
 
@@ -125,6 +132,9 @@ class Fighter(BaseComponent):
         self.parent.inspect_message = "It's a dead corpse."
 
         self.engine.message_log.add_message(death_message, death_message_color)
+
+        # Remove all status effects.
+        self.status_effects = []
 
         if not self.parent.is_swarm: # If this is a swarm, then it will not give XP or Credits when it dies.
             self.engine.player.level.add_xp(self.parent.level.xp_given)

@@ -118,6 +118,15 @@ class MeleeAction(ActionWithDirection):
             )
             target.fighter.hp -= damage
 
+            # trigger any on_attack of the equipment of the attacker, if any.
+            if self.entity.equipment and self.entity.equipment.weapon:
+                self.entity.equipment.weapon.equippable.on_attack(target)
+
+            # trigger any on_hit of the equipment of the target, if any.
+            if target.equipment and target.equipment.armor:
+                target.equipment.armor.equippable.on_hit(self.entity, damage)
+
+
             # Apply the status effect to the target, if any.
             if self.effect is not None:
                 target.fighter.apply_status_effect(self.effect)

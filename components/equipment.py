@@ -73,6 +73,9 @@ class Equipment(BaseComponent):
 
         setattr(self, slot, item)
 
+        if item.equippable is not None:
+            item.equippable.on_equip(self.parent)
+
         if add_message:
             self.equip_message(item.name)
 
@@ -81,6 +84,9 @@ class Equipment(BaseComponent):
 
         if add_message:
             self.unequip_message(current_item.name)
+
+        if current_item.equippable is not None:
+            current_item.equippable.on_unequip(self.parent)
 
         setattr(self, slot, None)
 

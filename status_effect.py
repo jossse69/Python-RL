@@ -36,7 +36,7 @@ class Poisoned(StatusEffect):
         parent.fighter.take_damage(self.value)
         self.duration -= 1
 
-class bleeding(StatusEffect):
+class Bleeding(StatusEffect):
     """
     A class to represent a bleeding status effect.
 

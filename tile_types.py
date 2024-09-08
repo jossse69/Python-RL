@@ -1,5 +1,5 @@
 from typing import Tuple
-from color import current_bg
+from color import current_bg, current_wall, current_floor
 import numpy as np  # type: ignore
 
 # Tile graphics structured type compatible with Console.tiles_rgb.
@@ -38,10 +38,10 @@ def new_tile(
 
 
 floor = new_tile(
-    walkable=True, transparent=True, light=(ord("."), (102, 0, 51), current_bg), dark=(ord("."), (51, 51, 51), (current_bg)), autotile=False
+    walkable=True, transparent=True, light=(ord("."), current_floor, current_bg), dark=(ord("."), (51, 51, 51), current_bg), autotile=False
 )
 wall = new_tile(
-    walkable=False, transparent=False, light=(ord(" "), (153, 0, 153), current_bg), dark=(ord(" "), (51, 51, 51), (current_bg)), autotile=True
+    walkable=False, transparent=False, light=(ord(" "), current_wall, current_bg), dark=(ord(" "), (51, 51, 51), current_bg), autotile=True
 )
 down_stairs = new_tile(
     walkable=True,

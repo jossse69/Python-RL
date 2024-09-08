@@ -6,7 +6,7 @@ from components.level import Level
 from entity import NPC, Actor, Item
 from components.equipment import Equipment
 from input_handlers import ShopkeepMenuEventHandler
-from status_effect import Poisoned, bleeding
+from status_effect import Poisoned, Bleeding
 
 
 player = Actor(
@@ -37,7 +37,7 @@ rusty_automaton = Actor(
     color=(200, 174, 137),
     name="Rusty Automaton",
     ai_cls=HostileEnemy,
-    fighter=Fighter(hp=16, base_defence=1, base_power=4, base_dodge=4),
+    fighter=Fighter(hp=16, base_defence=1, base_power=4, base_dodge=4, immune_effects=[Poisoned, Bleeding]),
     inventory=Inventory(capacity=0),
     inspect_message="He looks like he's been here a while. I Won't say he's having a great time existing.",
     level=Level(xp_given=100),
@@ -53,7 +53,7 @@ hunter_humanoid = Actor(
     level=Level(xp_given=150),
     equipment=Equipment(),
     inspect_message="It's a mutated human, probably due to being exposed to irradiated places. It's now a reckless hunter, with sharp claws and skinny body, it wants to eat fresh flesh.",
-    effect=bleeding(duration=6, value=1),
+    effect=Bleeding(duration=6, value=1),
 
 )
 acid_mold = Actor(
@@ -61,7 +61,7 @@ acid_mold = Actor(
     color=(0, 204, 102),
     name="Acid Mold",
     ai_cls=HostileEnemy,
-    fighter=Fighter(hp=19, base_defence=2, base_power=6, base_dodge=5),
+    fighter=Fighter(hp=19, base_defence=2, base_power=6, base_dodge=5, immune_effects=[Poisoned]),
     inventory=Inventory(capacity=0),
     level=Level(xp_given=50),
     equipment=Equipment(),
@@ -74,7 +74,7 @@ mama_mold = Actor(
     color=(0, 204, 102),
     name="Mama Mold",
     ai_cls=SpawnerEnemy,
-    fighter=Fighter(hp=30, base_defence=0, base_power=0, base_dodge=0),
+    fighter=Fighter(hp=30, base_defence=0, base_power=0, base_dodge=0, immune_effects=[Poisoned]),
     inventory=Inventory(capacity=0),
     level=Level(xp_given=200),
     equipment=Equipment(),
@@ -132,11 +132,23 @@ old_kinfe = Item(
     inspect_message="It's a old rusty kitchen kinfe. It's not very sharp, but it's still effective.",
     value=50,
 )
+acid_kinfe = Item(
+    char="/", color=(102, 255, 255), name="Acid kinfe", equippable=equippable.AcidKinfe(),
+    inspect_message="It's kinfe that's acidic. Be careful when holding it!",
+    value=50,
+)
 sharp_kinfe = Item(char="/", color=(102, 255, 255), name="Sharp kinfe", equippable=equippable.SharpKinfe(),
     inspect_message="It's a kitchen kinfe that was not let outside at least.",
     value=100,
 )
-
+professional_acid_kinfe = Item(
+    char="/",
+    color=(102, 255, 255),
+    name="Professional acid kinfe",
+    equippable=equippable.ProfessionalAcidKinfe(),
+    inspect_message="It's a acid kinfe that's been professionally made, for all kinds of industries. Very useful!",
+    value=100,
+)
 scrap_chest_plate = Item(
     char="[",
     color=(102, 255, 255),
@@ -153,11 +165,33 @@ iron_chest_plate = Item(
     inspect_message="It's a chest plate made of iron. Put it on and you'll be able to take a beating.",
     value=50,
     )
+spikey_chest_plate = Item(
+    char="[", color=(102, 255, 255), name="Spikey chest plate", equippable=equippable.SpikeyChestPlate(),
+    inspect_message="It's a iron chest plate, but it's covered in spikes. Anyone that tries to attack you with it will be bleeding heavily!",
+    value=80,
+)
 steel_chest_plate  = Item(
     char="[", color=(102, 255, 255), name="Steel chest plate", equippable=equippable.SteelChestPlate(),
     inspect_message="It's a chest plate, now made of steel. You'll be able to take quite the beating!",
     value=100,
 )
+steelpike_chest_plate = Item(
+    char="[",
+    color=(102, 255, 255),
+    name="Steelpike chest plate",
+    equippable=equippable.SteelPikeChestPlate(),
+    inspect_message="Steel chest plate + spikes = this. Quite a good one if i say so myself!",
+    value=120,
+)
+acid_metal_chest_plate = Item(
+    char="[",
+    color=(102, 255, 255),
+    name="Acid metal chest plate",
+    equippable=equippable.AcidMetalChestPlate(),
+    inspect_message="It's a chest plate made of acid metal. I don't know the chemistry of this material, but it's corrosive on touch, like a lot of acid.",
+    value=145,
+)
+
 
 shopkeep_npc = NPC(
     char="@",
