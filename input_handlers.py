@@ -16,6 +16,7 @@ from actions import (
 import color
 import exceptions
 import os
+from debug_commands import run_command
 
 if TYPE_CHECKING:
     from engine import Engine
@@ -199,6 +200,9 @@ class MainGameEventHandler(EventHandler):
             return LookHandler(self.engine)
         elif key == tcod.event.KeySym.c:
             return CharacterScreenEventHandler(self.engine)
+        elif key == tcod.event.KeySym.N0:
+            return DebugCommandLineEventHandler(self.engine, self)
+
 
         # No valid key was pressed
         return action
@@ -790,3 +794,52 @@ class ShopkeepMenuEventHandler(AskUserEventHandler):
 
 
         return super().ev_keydown(event)
+    
+
+class DebugCommandLineEventHandler(AskUserEventHandler):
+    def __init__(self, engine: actions.Engine, previous_handler: EventHandler):
+        super().__init__(engine)
+        self.text = ""
+        self.previous_handler = previous_handler
+        self.message = "Hello! Welcome to this not-so-secret debug command line! \n Type 'help' for a list of commands."
+
+    def on_exit(self) -> Action | BaseEventHandler | None:
+        return self.previous_handler
+
+    def ev_keydown(self, event: tcod.event.KeyDown) -> Optional[ActionOrHandler]:
+        key = event.sym
+        if key == tcod.event.KeySym.ESCAPE:
+            return self.on_exit()
+        elif key == tcod.event.KeySym.RETURN:
+            self.message = run_command(self.text, self.engine)
+            self.text = ""
+        elif key == tcod.event.KeySym.BACKSPACE:
+            self.text = self.text[:-1]
+        return None
+    
+    def ev_textinput(self, event: tcod.event.TextInput) -> Optional[ActionOrHandler]:
+        self.text += event.text
+        return None
+
+    def on_render(self, console: tcod.Console) -> None:
+        super().on_render(console)
+
+        console.clear()
+
+        x = 2
+        y = 2
+
+        display_text = f"> {self.text}"
+
+        console.print(x=x, y=y, fg=color.text_console, string=display_text)
+
+        # Print the message one character at a time. And also handling line breaks.
+        y += 2
+        for i, line in enumerate(self.message.split("\n")):
+            console.print(x=x, y=y + i, fg=color.text_console, string=line)
+
+
+
+
+
+

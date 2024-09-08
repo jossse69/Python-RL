@@ -106,12 +106,22 @@ class MeleeAction(ActionWithDirection):
 
         damage = self.entity.fighter.power - target.fighter.defense
 
+        # If the attacker is the player and godmode is on, then the attacker will do max damage
+        if self.entity is self.engine.player and self.engine.game_world.godmode:
+            damage = 99999999
+
+
         attack_desc = f"{self.entity.name.capitalize()} attacks {target.name.capitalize()}"
         if self.entity is self.engine.player:
             attack_color = color.player_atk
         else:
             attack_color = color.enemy_atk
         if damage > 0:
+
+            # if the target is the player and godmode is on, then the target will take no damage
+            if target is self.engine.player and self.engine.game_world.godmode:
+                return
+
             self.engine.message_log.add_message(
                 f"{attack_desc} for {damage} hit points!",
                 attack_color

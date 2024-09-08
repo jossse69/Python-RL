@@ -85,14 +85,21 @@ class GameMap:
 
         return None
 
+    def is_walkable_tile(
+        self, location_x: int, location_y: int,
+    ) -> bool:
+        """Return if there is a walkable tile at the given location."""
+        if self.in_bounds(location_x, location_y) and self.tiles[location_x, location_y]["walkable"]:
+            return self.tiles[location_x, location_y]["walkable"]
+        return None
+
+
     def set_tile(self, x: int, y: int, tile: str) -> None:
-        # if the tile has autotile then set the autotile'
+
         self.tiles[x, y] = tile
         # Update the 8 tiles around the position were the tile was placed
         for dx in [-1, 0, 1]:
             for dy in [-1, 0, 1]:
-                if dx == 0 and dy == 0:
-                    continue
                 self.update_tile_at(x + dx, y + dy, self.tiles[x + dx, y + dy])
 
     def get_actor_at_location(self, x: int, y: int) -> Optional[Actor]:
@@ -265,6 +272,8 @@ class GameWorld:
         self.credits = starting_credits
         
         self.floors_without_shop = 0
+
+        self.godmode = False
 
     def generate_floor(self) -> None:
         from procgen import generate_dungeon, generate_shopkeep_floor

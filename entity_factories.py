@@ -8,6 +8,7 @@ from components.equipment import Equipment
 from input_handlers import ShopkeepMenuEventHandler
 from status_effect import Poisoned, Bleeding
 
+ALL_ENTITIES = []
 
 player = Actor(
     char="@",
@@ -20,7 +21,7 @@ player = Actor(
     level=Level(level_up_base=200),
     equipment=Equipment(),
 )
-
+ALL_ENTITIES.append(player)
 slime_mold = Actor(
     char="m", 
     color=(255, 80, 80), 
@@ -32,6 +33,7 @@ slime_mold = Actor(
     level=Level(xp_given=35),
     equipment=Equipment(),
 )
+ALL_ENTITIES.append(slime_mold)
 rusty_automaton = Actor(
     char="a",
     color=(200, 174, 137),
@@ -43,6 +45,7 @@ rusty_automaton = Actor(
     level=Level(xp_given=100),
     equipment=Equipment(),
 )
+ALL_ENTITIES.append(rusty_automaton)
 hunter_humanoid = Actor(
     char="h",
     color=(244, 227, 210),
@@ -54,8 +57,8 @@ hunter_humanoid = Actor(
     equipment=Equipment(),
     inspect_message="It's a mutated human, probably due to being exposed to irradiated places. It's now a reckless hunter, with sharp claws and skinny body, it wants to eat fresh flesh.",
     effect=Bleeding(duration=6, value=1),
-
 )
+ALL_ENTITIES.append(hunter_humanoid)
 acid_mold = Actor(
     char="m",
     color=(0, 204, 102),
@@ -67,8 +70,8 @@ acid_mold = Actor(
     equipment=Equipment(),
     inspect_message="It's a slime mold, but it's acidic. Don't touch it! It's hurts to the touch.",
     effect=Poisoned(duration=4, value=1),
-
 )
+ALL_ENTITIES.append(acid_mold)
 mama_mold = Actor(
     char="M",
     color=(0, 204, 102),
@@ -81,7 +84,7 @@ mama_mold = Actor(
     inspect_message="It's a big slime mold. It's trying to reproduce, and use its offspring to defend itself from you."
 )
 mama_mold.ai.setup(acid_mold, 8)
-
+ALL_ENTITIES.append(mama_mold)
 healing_gel = Item(
     char="!",
     color=(102, 255, 102),
@@ -90,6 +93,7 @@ healing_gel = Item(
     inspect_message="A Small, green-glowing piece of smile. It has a some-what apple taste.",
     value=10,
 )
+ALL_ENTITIES.append(healing_gel)
 XL_healing_gel = Item(
     char="!",
     color=(0, 255, 0),
@@ -98,6 +102,7 @@ XL_healing_gel = Item(
     inspect_message="A Extra Large healing Gel. Don't choke while gobbling it up!",
     value=25,
 )
+ALL_ENTITIES.append(XL_healing_gel)
 taser = Item(
     char="~",
     color=(255, 255, 0),
@@ -106,6 +111,7 @@ taser = Item(
     inspect_message="It's a bit old, and it's bolts go to whatever they want, but it's still effective.",
     value=30,
 )
+ALL_ENTITIES.append(taser)
 stun_gun = Item(
     char="~",
     color=(153, 0, 255),
@@ -114,6 +120,7 @@ stun_gun = Item(
     inspect_message="Bright flashes always makes everyone disoriented. I'd get confused if i were to look at it.",
     value=10,
 )
+ALL_ENTITIES.append(stun_gun)
 fireball_gun = Item(
     char="~",
     color=(255, 0, 0),
@@ -122,25 +129,29 @@ fireball_gun = Item(
     inspect_message="It's a gun that shoots fireballs. Like the ones from fantasy games. It's pretty effective!",
     value=50,
 )
-
+ALL_ENTITIES.append(fireball_gun)
 pocket_kinfe = Item(    char="/", color=(102, 255, 255), name="Pocket kinfe", equippable=equippable.PocketKinfe(),
     inspect_message="The most pesonal kinfe you'll ever find. Use it if you're in a pinch.",
     value=10,
 )
+ALL_ENTITIES.append(pocket_kinfe)
 old_kinfe = Item(
     char="/", color=(102, 255, 255), name="Old kinfe", equippable=equippable.OldKinfe(),
     inspect_message="It's a old rusty kitchen kinfe. It's not very sharp, but it's still effective.",
     value=50,
 )
+ALL_ENTITIES.append(old_kinfe)
 acid_kinfe = Item(
     char="/", color=(102, 255, 255), name="Acid kinfe", equippable=equippable.AcidKinfe(),
     inspect_message="It's kinfe that's acidic. Be careful when holding it!",
     value=50,
 )
+ALL_ENTITIES.append(acid_kinfe)
 sharp_kinfe = Item(char="/", color=(102, 255, 255), name="Sharp kinfe", equippable=equippable.SharpKinfe(),
     inspect_message="It's a kitchen kinfe that was not let outside at least.",
     value=100,
 )
+ALL_ENTITIES.append(sharp_kinfe)
 professional_acid_kinfe = Item(
     char="/",
     color=(102, 255, 255),
@@ -149,6 +160,7 @@ professional_acid_kinfe = Item(
     inspect_message="It's a acid kinfe that's been professionally made, for all kinds of industries. Very useful!",
     value=100,
 )
+ALL_ENTITIES.append(professional_acid_kinfe)
 scrap_chest_plate = Item(
     char="[",
     color=(102, 255, 255),
@@ -157,6 +169,7 @@ scrap_chest_plate = Item(
     inspect_message="It's a chest plate made of scrap metal. It's not very strong, but it's still effective.",
     value=25,
 )
+ALL_ENTITIES.append(scrap_chest_plate)
 iron_chest_plate = Item(
     char="[",
     color=(102, 255, 255),
@@ -164,17 +177,20 @@ iron_chest_plate = Item(
     equippable=equippable.IronChestPlate(),
     inspect_message="It's a chest plate made of iron. Put it on and you'll be able to take a beating.",
     value=50,
-    )
+)
+ALL_ENTITIES.append(iron_chest_plate)
 spikey_chest_plate = Item(
     char="[", color=(102, 255, 255), name="Spikey chest plate", equippable=equippable.SpikeyChestPlate(),
     inspect_message="It's a iron chest plate, but it's covered in spikes. Anyone that tries to attack you with it will be bleeding heavily!",
     value=80,
 )
+ALL_ENTITIES.append(spikey_chest_plate)
 steel_chest_plate  = Item(
     char="[", color=(102, 255, 255), name="Steel chest plate", equippable=equippable.SteelChestPlate(),
     inspect_message="It's a chest plate, now made of steel. You'll be able to take quite the beating!",
     value=100,
 )
+ALL_ENTITIES.append(steel_chest_plate)
 steelpike_chest_plate = Item(
     char="[",
     color=(102, 255, 255),
@@ -183,6 +199,7 @@ steelpike_chest_plate = Item(
     inspect_message="Steel chest plate + spikes = this. Quite a good one if i say so myself!",
     value=120,
 )
+ALL_ENTITIES.append(steelpike_chest_plate)
 acid_metal_chest_plate = Item(
     char="[",
     color=(102, 255, 255),
@@ -191,8 +208,7 @@ acid_metal_chest_plate = Item(
     inspect_message="It's a chest plate made of acid metal. I don't know the chemistry of this material, but it's corrosive on touch, like a lot of acid.",
     value=145,
 )
-
-
+ALL_ENTITIES.append(acid_metal_chest_plate)
 shopkeep_npc = NPC(
     char="@",
     color=(102, 255, 102),
@@ -200,3 +216,4 @@ shopkeep_npc = NPC(
     interact_input_handler_cls=ShopkeepMenuEventHandler,
     inspect_message="It's a shop keeper. He's a friendly humanoid robot. He's selling some items. At least some freind in this world.",
 )
+ALL_ENTITIES.append(shopkeep_npc)
