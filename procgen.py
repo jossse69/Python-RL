@@ -44,7 +44,8 @@ enemy_chances: Dict[int, List[Tuple[Entity, int]]] = {
     8: [(entity_factories.rusty_automaton, 0), (entity_factories.hunter_humanoid, 65)],
     9: [(entity_factories.slime_mold, 0)],
     10: [(entity_factories.baby_shroom, 25)],
-    12: [(entity_factories.bloom_shroom, 15)]
+    12: [(entity_factories.bloom_shroom, 15)],
+    13: [(entity_factories.wild_hunter_humanoid, 25), (entity_factories.hunter_humanoid, 35)]
 }
 
 def get_max_value_for_floor(

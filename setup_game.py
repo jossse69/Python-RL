@@ -116,7 +116,9 @@ class MainMenu(input_handlers.BaseEventHandler):
             raise SystemExit()
         elif event.sym == tcod.event.KeySym.c:
             try:
-                return input_handlers.MainGameEventHandler(load_game("savegame.sav"))
+                engine = load_game("savegame.sav") 
+                engine.game_world.update_floor_colors()
+                return input_handlers.MainGameEventHandler(engine)
             except FileNotFoundError:
                 return input_handlers.PopupMessage(self, "No saved game to load.")
             except Exception as exc:

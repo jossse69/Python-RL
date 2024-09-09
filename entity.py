@@ -57,6 +57,7 @@ class Entity:
         self.inspect_message = inspect_message
         self.is_swarm = False
         self.last_position = (x, y)
+        self.visible = True
 
         # Create a internal_name for the entity. Internal names are allways lowercase and have spaces replaced with underscores.
         self.internal_name = name.lower().replace(" ", "_")

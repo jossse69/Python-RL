@@ -243,8 +243,8 @@ class GameMap:
         )
 
         for entity in entities_sorted_for_rendering:
-            # Only print entities that are in the FOV
-            if self.visible[entity.x, entity.y]:
+            # Only print entities that are in the FOV or are visible.
+            if self.visible[entity.x, entity.y] and entity.visible == True:
                 console.print(
                     x=entity.x, y=entity.y, string=entity.char, fg=entity.color
                 )
@@ -287,13 +287,7 @@ class GameWorld:
 
         self.player_confused_turns = 0
 
-    def generate_floor(self) -> None:
-        from procgen import generate_dungeon, generate_shopkeep_floor
-
-        floor_type = "normal"
-
-        self.current_floor += 1
-
+    def update_floor_colors(self) -> None:
         if self.current_floor < 10:
             # Use "The lab" colors for the tiles
             color.current_bg = color.bg_lab
@@ -309,6 +303,14 @@ class GameWorld:
             tile_types.SHROUD["fg"] = color.gray_scale_color(color.bg_grotto)
             tile_types.SHROUD["bg"] = color.bg_grotto
 
+    def generate_floor(self) -> None:
+        from procgen import generate_dungeon, generate_shopkeep_floor
+
+        floor_type = "normal"
+
+        self.current_floor += 1
+
+        self.update_floor_colors()
 
         if self.current_floor == 1:
             pass # Guarantee the first floor is normal

@@ -1,4 +1,4 @@
-from components.ai import HostileEnemy, SpawnerEnemy, ZoneSpawnerEnemy
+from components.ai import HostileEnemy, SpawnerEnemy, ZoneSpawnerEnemy, InvisblePouncerEnemy
 from components import consumable, equippable
 from components.fighter import Fighter
 from components.inventory import Inventory
@@ -291,3 +291,16 @@ bloom_shroom = Actor(
 )
 bloom_shroom.ai.setup(spore_filled_air, 3)
 ALL_ENTITIES.append(bloom_shroom)
+wild_hunter_humanoid = Actor(
+    char="h",
+    color=(51, 0, 51),
+    name="Wild Hunter Humanoid",
+    ai_cls=InvisblePouncerEnemy,
+    fighter=Fighter(hp=30, base_power=4, base_dodge=15, base_defence=2),
+    inventory=Inventory(capacity=0),
+    level=Level(xp_given=250),
+    equipment=Equipment(),
+    inspect_message="It's a hunter humanoid that looks a lot more scarier! Dark fur, red blood eyes and long fangs make it look like a monster.",
+)
+wild_hunter_humanoid.ai.setup(HostileEnemy, 5)
+ALL_ENTITIES.append(wild_hunter_humanoid)

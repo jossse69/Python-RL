@@ -245,3 +245,63 @@ class DropItem(ItemAction):
             self.entity.equipment.toggle_equip(self.item)
 
         self.entity.inventory.drop(self.item)
+
+class PounceAction(Action):
+    def __init__(self, entity: Actor, x: int, y: int, effect:StatusEffect):
+        super().__init__(entity)
+
+        self.x = x
+        self.y = y
+        self.effect = effect
+
+    def perform(self) -> None:
+        self.entity.move(self.x - self.entity.x, self.y - self.entity.y)
+
+        target = None
+        for entity in self.engine.game_map.actors:
+            if entity.x == self.x and entity.y == self.y:
+                target = entity
+                break
+        if not target:
+            self.engine.message_log.add_message(f"{self.entity.name} pounces, but misses the target.")
+        else:
+            damage = (self.entity.fighter.power ** 2) - target.fighter.defense # Deal 2x the power of the attacker's power
+
+            # If the attacker is the player and godmode is on, then the attacker will do max damage
+            if self.entity is self.engine.player and self.engine.game_world.godmode:
+                damage = 99999999
+
+            attack_desc = f"{self.entity.name.capitalize()} pounces and attacks {target.name.capitalize()}"
+            if self.entity is self.engine.player:
+                attack_color = color.player_atk
+            else:
+                attack_color = color.enemy_atk
+            if damage > 0:
+
+                # if the target is the player and godmode is on, then the target will take no damage
+                if target is self.engine.player and self.engine.game_world.godmode:
+                    return
+                
+                self.engine.message_log.add_message(
+                    f"{attack_desc} for {damage} hit points!",
+                    attack_color
+                )
+                target.fighter.hp -= damage
+                target.fighter.last_actor_hurt_by = self.entity.internal_name
+
+                # trigger any on_attack of the equipment of the attacker, if any.
+                if self.entity.equipment and self.entity.equipment.weapon:
+                    self.entity.equipment.weapon.equippable.on_attack(target)
+
+                # trigger any on_hit of the equipment of the target, if any.
+                if target.equipment and target.equipment.armor:
+                    target.equipment.armor.equippable.on_hit(self.entity, damage)
+
+                # Apply the status effect to the target, if any.
+                if self.effect is not None:
+                    target.fighter.apply_status_effect(self.effect)
+            else:
+                self.engine.message_log.add_message(
+                    f"{attack_desc}, but does no damage.",
+                    attack_color
+                )

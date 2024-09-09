@@ -6,7 +6,7 @@ from typing import List, Optional, Tuple, TYPE_CHECKING
 import numpy as np  # type: ignore
 import tcod
 
-from actions import Action, MeleeAction, MovementAction, WaitAction
+from actions import Action, MeleeAction, MovementAction, PounceAction, WaitAction
 from entity import Actor
 
 
@@ -19,6 +19,7 @@ class BaseAI(Action):
 
     def __init__(self, entity: Actor) -> None:
         super().__init__(entity)
+        self.effect = None
 
     def set_effect(self, effect: Optional[StatusEffect] = None) -> None:
         self.effect = effect
@@ -254,5 +255,36 @@ class ZoneSpawnerEnemy(BaseAI):
         # Add 1 to the spawn timer.
         self.spawn_timer += 1
 
+        # Return a wait action.
+        return WaitAction(self.entity).perform()
+    
+class InvisblePouncerEnemy(BaseAI):
+    """
+    A invisible pouncer enemy will pounce on the player if they are in some amount tiles around it. Until then, it won't move and will be invisible until the player is in range. After that it will switch to the selected AI class.
+    """
+
+    def __init__(
+        self, entity: Actor
+    ):
+        super().__init__(entity)
+        entity.visible = False
+        self.is_setup = False
+
+    def setup(self, prev_ai: type[BaseAI], pounce_distance: int):
+        self.pounce_distance = pounce_distance
+        self.prev_ai = prev_ai(self.entity)
+        self.is_setup = True
+
+    def perform(self) -> None:
+        # Do not perform if this AI is not setup or the enemy is not visible in FOV.
+        if not self.is_setup or not self.engine.game_map.visible[self.entity.x, self.entity.y]:
+            return WaitAction(self.entity).perform()
+        
+        # If the player is in range, become visble and try to pounce on them.
+        if self.entity.distance(self.engine.player.x, self.engine.player.y) <= self.pounce_distance:
+            self.entity.visible = True
+            self.entity.ai = self.prev_ai
+            return PounceAction(self.entity, self.engine.player.x, self.engine.player.y, self.effect).perform()
+        
         # Return a wait action.
         return WaitAction(self.entity).perform()
