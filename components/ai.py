@@ -11,7 +11,7 @@ from entity import Actor
 
 
 if TYPE_CHECKING:
-    from entity import Actor
+    from entity import Actor, Zone
     from status_effect import StatusEffect
 
 
@@ -203,6 +203,53 @@ class SpawnerEnemy(BaseAI):
                 return MovementAction(
                     self.entity, dest_x - self.entity.x, dest_y - self.entity.y,
                 ).perform()
+
+        # Add 1 to the spawn timer.
+        self.spawn_timer += 1
+
+        # Return a wait action.
+        return WaitAction(self.entity).perform()
+    
+class ZoneSpawnerEnemy(BaseAI):
+    """
+    A zone spawner enemy will spawn a new enemy (of the selected type) in a random location around it self. It can't move on it's own.
+    """
+
+    def __init__(
+        self, entity: Actor
+    ):
+        super().__init__(entity)
+
+        self.is_setup = False
+
+    def setup(self, spawned_entity: Zone, spawn_rate: int):
+        self.spawned_zone = spawned_entity
+        self.spawn_rate = spawn_rate
+        self.spawn_timer = 0
+        self.is_setup = True
+
+    def perform(self) -> None:
+        # Do not perform if this AI is not setup or the spawner is not visible.
+        if not self.is_setup or not self.engine.game_map.visible[self.entity.x, self.entity.y]:
+            return WaitAction(self.entity).perform()
+        
+        # If the spawn timer is greater than the spawn rate, spawn a new zone in the 8 tiles around this.
+        if self.spawn_timer >= self.spawn_rate:
+            # Reset the spawn timer.
+            self.spawn_timer = 0
+
+            for x in range(self.entity.x - 1, self.entity.x + 2):
+                for y in range(self.entity.y - 1, self.entity.y + 2):
+                    if self.entity.x == x and self.entity.y == y:
+                        continue
+                    if self.engine.game_map.in_bounds(x, y) and self.engine.game_map.get_blocking_entity_at_location(x, y) == None and self.engine.game_map.is_walkable_tile(x, y):
+                        gas = self.spawned_zone.spawn(self.engine.game_map, x, y)
+                        gas.duration += random.randint(1, 6)
+
+            # Add a message to the message log.
+            self.engine.message_log.add_message(
+                f"The {self.entity.name} released a bunch of {self.spawned_zone.name}!"
+            )
 
         # Add 1 to the spawn timer.
         self.spawn_timer += 1

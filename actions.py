@@ -127,6 +127,7 @@ class MeleeAction(ActionWithDirection):
                 attack_color
             )
             target.fighter.hp -= damage
+            target.fighter.last_actor_hurt_by = self.entity.internal_name
 
             # trigger any on_attack of the equipment of the attacker, if any.
             if self.entity.equipment and self.entity.equipment.weapon:

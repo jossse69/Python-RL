@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import copy
 import math
+import random
 from typing import Optional, Tuple, Type, TypeVar, TYPE_CHECKING, Union
 
 from engine import Engine
@@ -15,6 +16,8 @@ if TYPE_CHECKING:
     from components.equippable import Equippable
     from components.inventory import Inventory
     from components.level import Level
+    from components.zone import ZoneComponent
+
     from game_map import GameMap
     from input_handlers import EventHandler
     from status_effect import StatusEffect
@@ -238,3 +241,57 @@ class Item(Entity):
 
         if self.equippable:
             self.equippable.parent = self
+
+class Zone(Entity):
+    """
+    A walkable enity that can inflict a status effect to any actors steping on it, and can also disapear after some time. Used for water, gases, etc.
+    """
+    def __init__(
+        self,
+        *,
+        x: int = 0,
+        y: int = 0,
+        char: str = "?",
+        color: Tuple[int, int, int] = (255, 255, 255),
+        name: str = "<Unnamed>",
+        inspect_message: Optional[str] = "I don't know what this thing is.",
+        duration: int = 0,
+        is_permanent: bool = False,
+        zone_component: type[ZoneComponent],
+    ):
+        super().__init__(
+            x=x,
+            y=y,
+            char=char,
+            color=color,
+            name=name,
+            blocks_movement=False,
+            render_order=RenderOrder.ZONE,
+            inspect_message=inspect_message,
+        )
+
+        self.duration = duration
+        self.is_permanent = is_permanent
+        self.zone_component = zone_component(self)
+        self.zone_component.parent = self
+
+    def on_tick_actor(self, actor: Actor) -> None:
+        self.zone_component.on_actor_tick(actor)
+    def on_update(self) -> None:
+        # Pick a random direction to move to
+        direction_x, direction_y = random.choice(
+            [
+                (-1, -1),  # Northwest
+                (0, -1),  # North
+                (1, -1),  # Northeast
+                (-1, 0),  # West
+                (1, 0),  # East
+                (-1, 1),  # Southwest
+                (0, 1),  # South
+                (1, 1),  # Southeast
+            ]
+        )
+
+        # Check if there's a walkble tile in the random direction
+        if self.gamemap.is_walkable_tile(self.x + direction_x, self.y + direction_y):
+            self.move(direction_x, direction_y)

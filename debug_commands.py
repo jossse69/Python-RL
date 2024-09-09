@@ -167,7 +167,57 @@ class GotoFloorCommand(Command):
             else:
                 engine.game_world.current_floor = floor_number
                 engine.game_world.generate_floor()
+                engine.update_fov()
                 return f"Teleported to floor {floor_number}."
+
+class GainXPCommand(Command):
+    """
+    Gives the player a specific amount of XP.
+    """
+    def __init__(self):
+        super().__init__("gainxp", "Gives the player a specific amount of XP.")
+
+    def __call__(self, engine: Engine, args: list[str]) -> str:
+        """
+        Gives the player a specific amount of XP.
+        """
+        if not args:
+            return "Usage: gainxp <amount>"
+        else:
+            try:
+                amount = int(args[0])
+            except ValueError:
+                return f"Invalid amount: {args[0]}"
+            if amount < 1:
+                return "Amount must be at least 1."
+            else:
+                engine.player.level.add_xp(amount)
+                return f"Gained {amount} XP."
+
+class GainCreditsCommand(Command):
+    """
+    Gives the player a specific amount of credits.
+    """
+    def __init__(self):
+        super().__init__("gaincredits", "Gives the player a specific amount of credits.")
+
+    def __call__(self, engine: Engine, args: list[str]) -> str:
+        """
+        Gives the player a specific amount of credits.
+        """
+        if not args:
+            return "Usage: gaincredits <amount>"
+        else:
+            try:
+                amount = int(args[0])
+            except ValueError:
+                return f"Invalid amount: {args[0]}"
+            if amount < 1:
+                return "Amount must be at least 1."
+            else:
+                engine.game_world.credits += amount
+                return f"Gained {amount} credits."
+
 
 # Initialize all the commands.
 HelpCommand()
@@ -175,3 +225,5 @@ SpawnCommand()
 RepeatCommand()
 GodmodeCommand()
 GotoFloorCommand()
+GainXPCommand()
+GainCreditsCommand()

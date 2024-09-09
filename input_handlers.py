@@ -1,9 +1,11 @@
 from __future__ import annotations
 
+import random
 from typing import Callable, Optional, Tuple, TYPE_CHECKING, Union
 
 import tcod.event
 from tcod import libtcodpy
+from tcod.console import Console
 import copy
 
 import actions
@@ -12,10 +14,12 @@ from actions import (
     BumpAction,
     PickupAction,
     WaitAction,
+    MovementAction
 )
 import color
 import exceptions
 import os
+import threading
 from debug_commands import run_command
 
 if TYPE_CHECKING:
@@ -154,10 +158,13 @@ class EventHandler(BaseEventHandler):
             self.engine.message_log.add_message(exc.args[0], color.impossible)
             return False  # Skip enemy turn on exceptions.
 
+
         self.engine.handle_enemy_turns()
         self.engine.handle_status_effects()
+        self.engine.handle_zones()
         self.engine.update_fov()
         return True
+
     
     def ev_mousemotion(self, event: tcod.event.MouseMotion) -> None:
         if self.engine.game_map.in_bounds(event.tile.x, event.tile.y):
@@ -180,6 +187,35 @@ class MainGameEventHandler(EventHandler):
             tcod.event.KMOD_LSHIFT | tcod.event.KMOD_RSHIFT
         ):
             return actions.TakeStairsAction(player)
+        
+        if self.engine.game_world.player_confused_turns > 0:
+            # Pick a random direction to move to
+            direction_x, direction_y = random.choice(
+                [
+                    (-1, -1),  # Northwest
+                    (0, -1),  # North
+                    (1, -1),  # Northeast
+                    (-1, 0),  # West
+                    (1, 0),  # East
+                    (-1, 1),  # Southwest
+                    (0, 1),  # South
+                    (1, 1),  # Southeast
+                ]
+            )
+
+            # Check if there's a walkble tile in the random direction
+            if self.engine.game_map.is_walkable_tile(player.x + direction_x, player.y + direction_y):
+                action = MovementAction(player, direction_x, direction_y)
+
+            self.engine.game_world.player_confused_turns = max(0, self.engine.game_world.player_confused_turns - 1)
+
+            if self.engine.game_world.player_confused_turns == 0:
+                self.engine.message_log.add_message(
+                    "You get back to your sences.",
+                )
+
+
+            return action # Make the player be unable to move or do anything else while confused.
 
         if key in MOVE_KEYS:
             dx, dy = MOVE_KEYS[key]
@@ -206,6 +242,30 @@ class MainGameEventHandler(EventHandler):
 
         # No valid key was pressed
         return action
+    
+    def on_render(self, console: Console) -> None:
+        super().on_render(console)
+
+        if self.engine.game_world.player_confused_turns > 0:
+            # Draw a "YOU ARE CONFUSED!" message at the center of the screen.
+            console.rgb["fg"] //= 4
+            console.rgb["bg"] //= 4
+            console.print(
+                console.width // 2,
+                console.height // 2,
+                "YOU ARE CONFUSED!",
+                fg=color.status_effect_applied,
+                bg=color.black,
+                alignment=libtcodpy.CENTER,
+            )
+            console.print(
+                console.width // 2,
+                (console.height // 2) + 1,
+                "(press any key to continue a turn)",
+                fg=color.status_effect_applied,
+                bg=color.black,
+                alignment=libtcodpy.CENTER,
+            )
     
 class GameOverEventHandler(EventHandler):
     def on_quit(self) -> None:
@@ -509,8 +569,8 @@ class AreaRangedAttackHandler(SelectIndexHandler):
 
         # Draw a rectangle around the targeted area, so the player can see the affected tiles.
         console.draw_frame(
-            x=x - self.radius - 1,
-            y=y - self.radius - 1,
+            x=x - self.radius,
+            y=y - self.radius,
             width=self.radius ** 2,
             height=self.radius ** 2,
             fg=color.red,
@@ -800,6 +860,7 @@ class DebugCommandLineEventHandler(AskUserEventHandler):
     def __init__(self, engine: actions.Engine, previous_handler: EventHandler):
         super().__init__(engine)
         self.text = ""
+        self.frist_input = True
         self.previous_handler = previous_handler
         self.message = "Hello! Welcome to this not-so-secret debug command line! \n Type 'help' for a list of commands."
 
@@ -818,6 +879,9 @@ class DebugCommandLineEventHandler(AskUserEventHandler):
         return None
     
     def ev_textinput(self, event: tcod.event.TextInput) -> Optional[ActionOrHandler]:
+        if self.frist_input:
+            self.frist_input = False
+            return None
         self.text += event.text
         return None
 

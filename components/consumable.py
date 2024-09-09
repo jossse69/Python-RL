@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import random
 from typing import Optional, TYPE_CHECKING
 
 import actions
@@ -15,7 +16,7 @@ from input_handlers import (
 )
 
 if TYPE_CHECKING:
-    from entity import Actor, Item
+    from entity import Actor, Item, Zone
 
 
 class Consumable(BaseComponent):
@@ -150,4 +151,39 @@ class FireballDamageConsumable(Consumable):
 
         if not targets_hit:
             raise Impossible("There are no targets in the radius.")
+        self.consume()
+
+class GasGranadeConsumable(Consumable):
+    def __init__(self, radius: int, zone: Zone):
+        self.radius = radius
+        self.zone = zone
+
+    def get_action(self, consumer: Actor) -> AreaRangedAttackHandler:
+        self.engine.message_log.add_message(
+            "Select a target location.", color.needs_target
+        )
+        return SingleRangedAttackHandler(
+            self.engine,
+            callback=lambda xy: actions.ItemAction(consumer, self.parent, xy),
+        )
+    
+    def activate(self, action: actions.ItemAction) -> None:
+        target_xy = action.target_xy
+
+        if not self.engine.game_map.visible[target_xy]:
+            raise Impossible("You cannot target an area that you cannot see.")
+
+        # Spawn the zones in the radius.
+        for x in range(target_xy[0] - self.radius, target_xy[0] + self.radius + 1):
+            for y in range(target_xy[1] - self.radius, target_xy[1] + self.radius + 1):
+                if self.engine.game_map.is_walkable_tile(x, y):
+                    gas = self.zone.spawn(self.engine.game_map, x, y)
+                    gas.duration += random.randint(1, 6)
+
+        # Add a message saying the granade has been thrown.
+        self.engine.message_log.add_message(
+            f"You throw the granade, and it explodes, creating a zone of {self.zone.name} in the area!",
+            color.status_effect_applied,
+        )
+
         self.consume()

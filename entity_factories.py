@@ -1,12 +1,13 @@
-from components.ai import HostileEnemy, SpawnerEnemy
+from components.ai import HostileEnemy, SpawnerEnemy, ZoneSpawnerEnemy
 from components import consumable, equippable
 from components.fighter import Fighter
 from components.inventory import Inventory
 from components.level import Level
-from entity import NPC, Actor, Item
+from entity import NPC, Actor, Item, Zone
 from components.equipment import Equipment
 from input_handlers import ShopkeepMenuEventHandler
-from status_effect import Poisoned, Bleeding
+from status_effect import Poisoned, Bleeding, Spored
+from components.zone import HydrogenSulfideGas, NitrousOxideGas, SporeAir
 
 ALL_ENTITIES = []
 
@@ -217,3 +218,76 @@ shopkeep_npc = NPC(
     inspect_message="It's a shop keeper. He's a friendly humanoid robot. He's selling some items. At least some freind in this world.",
 )
 ALL_ENTITIES.append(shopkeep_npc)
+hydrogen_sulfide_gas = Zone(
+    char="▒",
+    color=(204, 204, 0),
+    name="Hydrogen Sulfide Gas",
+    inspect_message="It's a gas that's made of hydrogen sulfide. It's very toxic!",
+    duration=10,
+    is_permanent=False,
+    zone_component=HydrogenSulfideGas,
+)
+ALL_ENTITIES.append(hydrogen_sulfide_gas)
+poison_gas_granade = Item(
+    char="*",
+    color=(204, 204, 0),
+    name="Poison gas granade",
+    consumable=consumable.GasGranadeConsumable(radius=5, zone=hydrogen_sulfide_gas),
+    inspect_message="It's a granade that has toxic gas in it. It's very effective at killing stuff at masses.",
+    value=50,
+)
+ALL_ENTITIES.append(poison_gas_granade)
+nitrous_oxide_gas = Zone(
+    char="▒",
+    color=(153, 0, 255),
+    name="Nitrous Oxide Gas",
+    inspect_message="It's a gas that's made of nitrous oxide. It makes creatures dizzy, so don't fool around in there!",
+    duration=10,
+    is_permanent=False,
+    zone_component=NitrousOxideGas,
+)
+ALL_ENTITIES.append(nitrous_oxide_gas)
+stun_gas_granade = Item(
+    char="*",
+    color=(153, 0, 255),
+    name="Stun gas granade",
+    consumable=consumable.GasGranadeConsumable(radius=5, zone=nitrous_oxide_gas),
+    inspect_message="It's a granade that has a gas that makes you dizzy. Just, don't inhale it to test if it's effective.",
+    value=50,
+)
+ALL_ENTITIES.append(stun_gas_granade)
+baby_shroom = Actor(
+    char="s",
+    color=(255, 153, 0),
+    name="Baby Shroom",
+    ai_cls=HostileEnemy,
+    fighter=Fighter(hp=20, base_power=4, base_dodge=0, immune_effects=[Spored], base_defence=3),
+    inventory=Inventory(capacity=0),
+    level=Level(xp_given=100),
+    equipment=Equipment(),
+    inspect_message="It's a small walking fungi with a orange cap. It appears to be part of a great linage of mushrooms. It's very cute, but it's also very dangerous.",
+)
+ALL_ENTITIES.append(baby_shroom)
+spore_filled_air = Zone(
+    char="▒",
+    color=(255, 153, 0),
+    name="Spore filled air",
+    inspect_message="It's a cloud full of spores. They look sticky.",
+    duration=10,
+    is_permanent=False,
+    zone_component=SporeAir,
+)
+ALL_ENTITIES.append(spore_filled_air)
+bloom_shroom = Actor(
+    char="S",
+    color=(255, 153, 0),
+    name="Bloom Shroom",
+    ai_cls=ZoneSpawnerEnemy,
+    fighter=Fighter(hp=30, base_power=6, base_dodge=0, immune_effects=[Spored], base_defence=3),
+    inventory=Inventory(capacity=0),
+    level=Level(xp_given=200),
+    equipment=Equipment(),
+    inspect_message="It's a large mushroom, like the little baby ones. It's releasing spores from it's cap. Is that a bad thing?",
+)
+bloom_shroom.ai.setup(spore_filled_air, 3)
+ALL_ENTITIES.append(bloom_shroom)

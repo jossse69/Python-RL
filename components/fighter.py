@@ -24,6 +24,7 @@ class Fighter(BaseComponent):
         self.base_power = base_power
         self.status_effects = []
         self.immune_effects = immune_effects if immune_effects else []
+        self.last_actor_hurt_by = ""
 
 
     @property
@@ -101,7 +102,7 @@ class Fighter(BaseComponent):
 
     def update_status_effects(self) -> None:
         for status_effect in self.status_effects:
-            status_effect.on_tick(self.parent)
+            status_effect.on_tick(self.parent, self.engine)
             if status_effect.duration <= 0 and status_effect in self.status_effects:
                 self.status_effects.remove(status_effect)
                 self.engine.message_log.add_message(f"{self.parent.name} is no longer {status_effect.name}.")
@@ -136,7 +137,7 @@ class Fighter(BaseComponent):
         # Remove all status effects.
         self.status_effects = []
 
-        if not self.parent.is_swarm: # If this is a swarm, then it will not give XP or Credits when it dies.
+        if self.last_actor_hurt_by == self.engine.player.internal_name and not self.parent.is_swarm: # If this is a swarm, then it will not give XP or Credits when it dies.
             self.engine.player.level.add_xp(self.parent.level.xp_given)
 
             # Have a chance to find credits when the enemy dies.

@@ -41,6 +41,26 @@ class Engine:
         for entity in set(self.game_map.actors):
             entity.fighter.update_status_effects()
 
+    def handle_zones(self) -> None:
+        zones_to_remove = []
+        for zone in self.game_map.zones:
+            zone.on_update()
+            # Check if there's a actor in the zone.
+            for actor in self.game_map.actors:
+                if zone.x == actor.x and zone.y == actor.y:
+                    if actor.fighter and actor.fighter.hp > 0:
+                        zone.on_tick_actor(actor)
+
+            # If the zone is not permanent, then tick down its countdown.
+            if not zone.is_permanent:
+                zone.duration -= 1
+                if zone.duration <= 0:
+                    zones_to_remove.append(zone)
+
+        # Remove the zones that are done.
+        for zone in zones_to_remove:
+            self.game_map.entities.remove(zone)
+            
 
     def update_fov(self) -> None:
         """Recompute the visible area based on the players point of view."""

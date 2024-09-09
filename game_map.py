@@ -7,7 +7,7 @@ import numpy as np  # type: ignore
 from tcod.console import Console
 from color import current_bg
 import color
-from entity import Actor, Item, NPC
+from entity import Actor, Item, NPC, Zone
 import tile_types
 
 if TYPE_CHECKING:
@@ -48,6 +48,16 @@ class GameMap:
             for entity in self.entities
             if isinstance(entity, NPC)
         )
+
+    @property
+    def zones(self) -> Iterator[Zone]:
+        """Iterate over this maps zones."""
+        yield from (
+            entity
+            for entity in self.entities
+            if isinstance(entity, Zone)
+        )
+
 
     @property
     def gamemap(self) -> GameMap:
@@ -274,6 +284,8 @@ class GameWorld:
         self.floors_without_shop = 0
 
         self.godmode = False
+
+        self.player_confused_turns = 0
 
     def generate_floor(self) -> None:
         from procgen import generate_dungeon, generate_shopkeep_floor

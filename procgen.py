@@ -31,6 +31,8 @@ item_chances: Dict[int, List[Tuple[Entity, int]]] = {
     6: [(entity_factories.fireball_gun, 25), (entity_factories.steel_chest_plate, 12), (entity_factories.professional_acid_kinfe, 15)],
     7: [(entity_factories.steelpike_chest_plate, 15)],
     8: [(entity_factories.acid_metal_chest_plate, 15)],
+    10: [(entity_factories.stun_gas_granade, 15), (entity_factories.old_kinfe, 0), (entity_factories.iron_chest_plate, 0), (entity_factories.sharp_kinfe, 0), (entity_factories.steel_chest_plate, 0)],
+    11: [(entity_factories.poison_gas_granade, 15)]
 }
 
 enemy_chances: Dict[int, List[Tuple[Entity, int]]] = {
@@ -41,6 +43,8 @@ enemy_chances: Dict[int, List[Tuple[Entity, int]]] = {
     7: [(entity_factories.rusty_automaton, 60), (entity_factories.mama_mold, 40)],
     8: [(entity_factories.rusty_automaton, 0), (entity_factories.hunter_humanoid, 65)],
     9: [(entity_factories.slime_mold, 0)],
+    10: [(entity_factories.baby_shroom, 25)],
+    12: [(entity_factories.bloom_shroom, 15)]
 }
 
 def get_max_value_for_floor(
