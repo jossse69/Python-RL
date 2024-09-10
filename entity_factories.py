@@ -1,3 +1,5 @@
+
+
 from components.ai import HostileEnemy, SpawnerEnemy, ZoneSpawnerEnemy, InvisblePouncerEnemy
 from components import consumable, equippable
 from components.fighter import Fighter
@@ -8,6 +10,7 @@ from components.equipment import Equipment
 from input_handlers import ShopkeepMenuEventHandler
 from status_effect import Poisoned, Bleeding, Spored
 from components.zone import HydrogenSulfideGas, NitrousOxideGas, SporeAir
+from npc_handler import ShopKeeperHandler
 
 ALL_ENTITIES = []
 
@@ -95,7 +98,7 @@ healing_gel = Item(
     value=10,
 )
 ALL_ENTITIES.append(healing_gel)
-XL_healing_gel = Item(
+xl_healing_gel = Item(
     char="!",
     color=(0, 255, 0),
     name="XL Healing Gel",
@@ -103,7 +106,7 @@ XL_healing_gel = Item(
     inspect_message="A Extra Large healing Gel. Don't choke while gobbling it up!",
     value=25,
 )
-ALL_ENTITIES.append(XL_healing_gel)
+ALL_ENTITIES.append(xl_healing_gel)
 taser = Item(
     char="~",
     color=(255, 255, 0),
@@ -145,7 +148,7 @@ ALL_ENTITIES.append(old_kinfe)
 acid_kinfe = Item(
     char="/", color=(102, 255, 255), name="Acid kinfe", equippable=equippable.AcidKinfe(),
     inspect_message="It's kinfe that's acidic. Be careful when holding it!",
-    value=50,
+    value=75,
 )
 ALL_ENTITIES.append(acid_kinfe)
 sharp_kinfe = Item(char="/", color=(102, 255, 255), name="Sharp kinfe", equippable=equippable.SharpKinfe(),
@@ -159,7 +162,7 @@ professional_acid_kinfe = Item(
     name="Professional acid kinfe",
     equippable=equippable.ProfessionalAcidKinfe(),
     inspect_message="It's a acid kinfe that's been professionally made, for all kinds of industries. Very useful!",
-    value=100,
+    value=150,
 )
 ALL_ENTITIES.append(professional_acid_kinfe)
 scrap_chest_plate = Item(
@@ -198,7 +201,7 @@ steelpike_chest_plate = Item(
     name="Steelpike chest plate",
     equippable=equippable.SteelPikeChestPlate(),
     inspect_message="Steel chest plate + spikes = this. Quite a good one if i say so myself!",
-    value=120,
+    value=140,
 )
 ALL_ENTITIES.append(steelpike_chest_plate)
 acid_metal_chest_plate = Item(
@@ -207,14 +210,15 @@ acid_metal_chest_plate = Item(
     name="Acid metal chest plate",
     equippable=equippable.AcidMetalChestPlate(),
     inspect_message="It's a chest plate made of acid metal. I don't know the chemistry of this material, but it's corrosive on touch, like a lot of acid.",
-    value=145,
+    value=185,
 )
 ALL_ENTITIES.append(acid_metal_chest_plate)
 shopkeep_npc = NPC(
     char="@",
     color=(102, 255, 102),
     name="Shop Keeper",
-    interact_input_handler_cls=ShopkeepMenuEventHandler,
+    npc_handler_cls=ShopKeeperHandler,
+    input_handler_cls=ShopkeepMenuEventHandler,
     inspect_message="It's a shop keeper. He's a friendly humanoid robot. He's selling some items. At least some freind in this world.",
 )
 ALL_ENTITIES.append(shopkeep_npc)
@@ -226,6 +230,7 @@ hydrogen_sulfide_gas = Zone(
     duration=10,
     is_permanent=False,
     zone_component=HydrogenSulfideGas,
+    moves_around=True
 )
 ALL_ENTITIES.append(hydrogen_sulfide_gas)
 poison_gas_granade = Item(
@@ -245,6 +250,7 @@ nitrous_oxide_gas = Zone(
     duration=10,
     is_permanent=False,
     zone_component=NitrousOxideGas,
+    moves_around=True
 )
 ALL_ENTITIES.append(nitrous_oxide_gas)
 stun_gas_granade = Item(
@@ -272,10 +278,11 @@ spore_filled_air = Zone(
     char="▒",
     color=(255, 153, 0),
     name="Spore filled air",
-    inspect_message="It's a cloud full of spores. They look sticky.",
+    inspect_message="It's a cloud full of spores. They look sticky, and they will probably crawl under your skin for a while... Yikes...",
     duration=10,
     is_permanent=False,
     zone_component=SporeAir,
+    moves_around=True
 )
 ALL_ENTITIES.append(spore_filled_air)
 bloom_shroom = Actor(
@@ -287,7 +294,7 @@ bloom_shroom = Actor(
     inventory=Inventory(capacity=0),
     level=Level(xp_given=200),
     equipment=Equipment(),
-    inspect_message="It's a large mushroom, like the little baby ones. It's releasing spores from it's cap. Is that a bad thing?",
+    inspect_message="It's a large mushroom, like the little baby ones. It's releasing spores like it's a breeding season! Is that a bad thing?",
 )
 bloom_shroom.ai.setup(spore_filled_air, 3)
 ALL_ENTITIES.append(bloom_shroom)

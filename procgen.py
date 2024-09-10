@@ -25,9 +25,9 @@ max_monsters_by_floor = [
 
 item_chances: Dict[int, List[Tuple[Entity, int]]] = {
     0: [(entity_factories.healing_gel, 35)],
-    2: [(entity_factories.stun_gun, 10), (entity_factories.old_kinfe, 5), (entity_factories.iron_chest_plate, 5), (entity_factories.XL_healing_gel, 5)],
+    2: [(entity_factories.stun_gun, 10), (entity_factories.old_kinfe, 5), (entity_factories.iron_chest_plate, 5), (entity_factories.xl_healing_gel, 5)],
     4: [(entity_factories.taser, 25), (entity_factories.sharp_kinfe, 15), (entity_factories.spikey_chest_plate, 12)],
-    5: [(entity_factories.acid_kinfe, 15)],
+    5: [(entity_factories.acid_kinfe, 15), (entity_factories.xl_healing_gel, 25)],
     6: [(entity_factories.fireball_gun, 25), (entity_factories.steel_chest_plate, 12), (entity_factories.professional_acid_kinfe, 15)],
     7: [(entity_factories.steelpike_chest_plate, 15)],
     8: [(entity_factories.acid_metal_chest_plate, 15)],

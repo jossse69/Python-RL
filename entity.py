@@ -21,6 +21,7 @@ if TYPE_CHECKING:
     from game_map import GameMap
     from input_handlers import EventHandler
     from status_effect import StatusEffect
+    from npc_handler import NPCHandler
 
 
 T = TypeVar("T", bound="Entity")
@@ -176,7 +177,8 @@ class NPC(Entity):
         color: Tuple[int, int, int] = (255, 255, 255),
         name: str = "<Unnamed>",
         inspect_message: Optional[str] = "I don't know what this thing is.",
-        interact_input_handler_cls: Type[EventHandler]
+        npc_handler_cls: Type[NPCHandler],
+        input_handler_cls: Type[EventHandler],
     ):
         super().__init__(
             x=x,
@@ -189,10 +191,16 @@ class NPC(Entity):
             inspect_message=inspect_message,
         )
         self.is_npc = True
-        self.input_handler_class = interact_input_handler_cls
+        self.npc_handler_class = npc_handler_cls
+        self.input_handler_class = input_handler_cls
 
     def init_handler(self, engine: Engine) -> None:
-        self.input_handler = self.input_handler_class(engine)
+        self.npc_handler = self.npc_handler_class(engine, self.input_handler_class, self)
+        self.npc_handler.init_handler()
+
+    @property
+    def input_handler(self) -> EventHandler:
+        return self.npc_handler.input_handler
 
     def interact(self) -> EventHandler:
         """
@@ -258,6 +266,7 @@ class Zone(Entity):
         inspect_message: Optional[str] = "I don't know what this thing is.",
         duration: int = 0,
         is_permanent: bool = False,
+        moves_around: bool = False,
         zone_component: type[ZoneComponent],
     ):
         super().__init__(
@@ -275,24 +284,32 @@ class Zone(Entity):
         self.is_permanent = is_permanent
         self.zone_component = zone_component(self)
         self.zone_component.parent = self
+        self.moves_around = moves_around
 
     def on_tick_actor(self, actor: Actor) -> None:
         self.zone_component.on_actor_tick(actor)
     def on_update(self) -> None:
-        # Pick a random direction to move to
-        direction_x, direction_y = random.choice(
-            [
-                (-1, -1),  # Northwest
-                (0, -1),  # North
-                (1, -1),  # Northeast
-                (-1, 0),  # West
-                (1, 0),  # East
-                (-1, 1),  # Southwest
-                (0, 1),  # South
-                (1, 1),  # Southeast
-            ]
-        )
+        if self.moves_around:
+            # Pick a random direction to move to
+            direction_x, direction_y = random.choice(
+                [
+                    (-1, -1),  # Northwest
+                    (0, -1),  # North
+                    (1, -1),  # Northeast
+                    (-1, 0),  # West
+                    (1, 0),  # East
+                    (-1, 1),  # Southwest
+                    (0, 1),  # South
+                    (1, 1),  # Southeast
+                ]
+            )
 
-        # Check if there's a walkble tile in the random direction
-        if self.gamemap.is_walkable_tile(self.x + direction_x, self.y + direction_y):
-            self.move(direction_x, direction_y)
+            # Check if there's a walkble tile in the random direction
+            if self.gamemap.is_walkable_tile(self.x + direction_x, self.y + direction_y):
+                # Check if there's not anoder zone in the random direction.
+                if not any(
+                    entity
+                    for entity in self.gamemap.zones
+                    if entity.x == self.x + direction_x and entity.y == self.y + direction_y
+                ):
+                    self.move(direction_x, direction_y)

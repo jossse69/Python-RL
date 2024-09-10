@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import random
-from typing import Callable, Optional, Tuple, TYPE_CHECKING, Union
+from typing import Callable, List, Optional, Tuple, TYPE_CHECKING, Union
 
 import tcod.event
 from tcod import libtcodpy
@@ -17,6 +17,7 @@ from actions import (
     MovementAction
 )
 import color
+import entity_factories
 import exceptions
 import os
 import threading
@@ -25,6 +26,7 @@ from debug_commands import run_command
 if TYPE_CHECKING:
     from engine import Engine
     from entity import Item
+    from entity import NPC
 
 
 MOVE_KEYS = {
@@ -736,13 +738,13 @@ class BuyItemsEventHandler(AskUserEventHandler):
     def __init__(self, engine: actions.Engine, previous_handler: EventHandler):
         super().__init__(engine)
 
-        from entity_factories import healing_gel, XL_healing_gel, taser
         self.previous_handler = previous_handler
-        self.items = [
-            copy.deepcopy(healing_gel),
-            copy.deepcopy(XL_healing_gel),
-            copy.deepcopy(taser) 
-        ]
+        self.items = []
+        for item in previous_handler.item_list:
+            for entity in entity_factories.ALL_ENTITIES:
+                if entity.internal_name == item:
+                    self.items.append(copy.deepcopy(entity))
+                        
 
     def on_exit(self) -> Action | BaseEventHandler | None:
         return self.previous_handler
@@ -771,14 +773,13 @@ class BuyItemsEventHandler(AskUserEventHandler):
         )
 
         # Draw the avaible items in a list, similar to the inventory menu.
-        # TODO: Add the items in, for now its placeholder items.
         for i, item in enumerate(self.items):
             item_key = chr(ord("a") + i)
             console.print(
                 x=x + 1,
                 y=y + 1 + i,
                 fg=color.text_console,
-                string=f"{item_key}) {item.name} - {item.value} Credit".upper(),
+                string=f"{item_key}) {item.name} - {item.value} Credits".upper(),
             )
 
     def ev_keydown(self, event: tcod.event.KeyDown) -> Optional[ActionOrHandler]:
@@ -807,6 +808,12 @@ class BuyItemsEventHandler(AskUserEventHandler):
 
 class ShopkeepMenuEventHandler(AskUserEventHandler):
     TITLE = "SHOP"
+
+    def __init__(self, engine: actions.Engine, NPC: NPC, item_list: List[Item]):
+        super().__init__(engine)
+
+        self.NPC = NPC
+        self.item_list = item_list
 
     def on_render(self, console: tcod.Console) -> None:
         super().on_render(console)
