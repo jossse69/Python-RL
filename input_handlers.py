@@ -787,7 +787,7 @@ class BuyItemsEventHandler(AskUserEventHandler):
         key = event.sym
         index = key - tcod.event.KeySym.a
 
-        if 0 <= index <= 2:
+        if 0 <= index <= self.items.__len__() - 1:
             item = copy.deepcopy(self.items[index])
 
             if self.engine.game_world.credits >= item.value:

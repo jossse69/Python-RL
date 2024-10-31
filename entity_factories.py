@@ -68,12 +68,12 @@ acid_mold = Actor(
     color=(0, 204, 102),
     name="Acid Mold",
     ai_cls=HostileEnemy,
-    fighter=Fighter(hp=19, base_defence=2, base_power=6, base_dodge=5, immune_effects=[Poisoned]),
+    fighter=Fighter(hp=14, base_defence=2, base_power=6, base_dodge=5, immune_effects=[Poisoned]),
     inventory=Inventory(capacity=0),
     level=Level(xp_given=50),
     equipment=Equipment(),
     inspect_message="It's a slime mold, but it's acidic. Don't touch it! It's hurts to the touch.",
-    effect=Poisoned(duration=4, value=1),
+    effect=Poisoned(duration=2, value=1),
 )
 ALL_ENTITIES.append(acid_mold)
 mama_mold = Actor(
@@ -311,3 +311,29 @@ wild_hunter_humanoid = Actor(
 )
 wild_hunter_humanoid.ai.setup(HostileEnemy, 5)
 ALL_ENTITIES.append(wild_hunter_humanoid)
+silver_kinfe = Item(
+    char="/",
+    color=(102, 255, 255),
+    name="Silver kinfe",
+    equippable=equippable.SilverKinfe(),
+    inspect_message="It's a silver kinfe, polished to the most extreme! It's fine kinfe for bleeding foes!",
+    value=175,
+)
+ALL_ENTITIES.append(silver_kinfe)
+hazmat_suit = Item(
+    char="[",
+    color=(102, 255, 255),
+    name="Hazmat suit",
+    equippable=equippable.HazmatSuit(),
+    inspect_message="It's a suit that's made of a special material. It's made to protect you from poison and spores. It's very effective at that!",
+    value=200,
+)
+ALL_ENTITIES.append(hazmat_suit)
+lead_hazmat_suit = Item(
+    char="[",
+    color=(102, 255, 255),
+    name="Lead hazmat suit",
+    equippable=equippable.LeadHazmatSuit(),
+    inspect_message="It's a hazmat suit that's made of lead. It's tougher than the normal hazmat suit, but it's also more expensive!",
+    value=250,
+)

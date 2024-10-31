@@ -23,9 +23,8 @@ class Fighter(BaseComponent):
         self.base_defence = base_defence
         self.base_power = base_power
         self.status_effects = []
-        self.immune_effects = immune_effects if immune_effects else []
+        self.base_immune_effects = immune_effects if immune_effects else []
         self.last_actor_hurt_by = ""
-
 
     @property
     def dodge(self) -> int:
@@ -59,6 +58,14 @@ class Fighter(BaseComponent):
             return self.parent.equipment.defense_bonus
         else:
             return 0
+        
+    @property
+    def immune_effects(self) -> list[type[StatusEffect]]:
+        if self.parent.equipment:
+            # Merge the base immunities with the extra immunities from the equipment. Avoiding duplicates.
+            return list(set(self.base_immune_effects + self.parent.equipment.extra_immunities))
+        else:
+            return self.base_immune_effects
 
     @property
     def hp(self) -> int:
@@ -86,7 +93,6 @@ class Fighter(BaseComponent):
         return amount_recovered
 
     def apply_status_effect(self, effect: StatusEffect) -> None:
-
         # If the fighter is immune to the effect, then don't apply it.
         for immune_effect in self.immune_effects:
             if isinstance(effect, immune_effect):
@@ -96,8 +102,8 @@ class Fighter(BaseComponent):
             if status_effect.name == effect.name:
                 status_effect.duration += effect.duration
                 return
+            
         self.status_effects.append(copy.deepcopy(effect))
-
         self.engine.message_log.add_message(f"{self.parent.name} is now {effect.name}!", color.status_effect_applied)
 
     def update_status_effects(self) -> None:

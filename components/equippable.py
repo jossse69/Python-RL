@@ -1,15 +1,16 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Type
 
 from components.base_component import BaseComponent
 from entity import Actor
 from equipment_types import EquipmentType
-from status_effect import Poisoned, Bleeding
+from status_effect import Poisoned, Bleeding, Spored
 
 if TYPE_CHECKING:
     from entity import Item
     from entity import Actor
+    from status_effect import StatusEffect
 
 
 
@@ -22,12 +23,14 @@ class Equippable(BaseComponent):
         power_bonus: int = 0,
         defense_bonus: int = 0,
         dodge_bonus: int = 0,
+        extra_immunities: list[Type[StatusEffect]] = [],
     ):
         self.equipment_type = equipment_type
 
         self.power_bonus = power_bonus
         self.defense_bonus = defense_bonus
         self.dodge_bonus = dodge_bonus
+        self.extra_immunities = extra_immunities
 
 
     def on_equip(self, parent: Actor) -> None:
@@ -90,6 +93,14 @@ class ProfessionalAcidKinfe(Equippable):
         # Add the poisoned status effect to the target.
         target.fighter.apply_status_effect(Poisoned(duration=8, value=2))
 
+class SilverKinfe(Equippable):
+    def __init__(self) -> None:
+        super().__init__(equipment_type=EquipmentType.WEAPON, power_bonus=7)
+
+    def on_attack(self, target: Actor):
+        # Add the bleeding status effect to the target.
+        target.fighter.apply_status_effect(Bleeding(duration=6, value=2))
+
 class ScrapChestPlate(Equippable):
     def __init__(self) -> None:
         super().__init__(equipment_type=EquipmentType.ARMOR, defense_bonus=1)
@@ -118,9 +129,9 @@ class SteelPikeChestPlate(Equippable):
 
     def on_hit(self, target: Actor, damage: int):
         # Add the bleeding status effect to the target.
-        target.fighter.apply_status_effect(Bleeding(duration=6, value=damage // 2))
-        # make the target take 4 damage
-        target.fighter.take_damage(4)
+        target.fighter.apply_status_effect(Bleeding(duration=6, value= 2 + (damage // 2)))
+        # make the target take damage
+        target.fighter.take_damage(4 + (damage // 2))
 
 class AcidMetalChestPlate(Equippable):
     def __init__(self) -> None:
@@ -129,3 +140,11 @@ class AcidMetalChestPlate(Equippable):
     def on_hit(self, target: Actor, damage: int):
         # Add the poisoned status effect to the target.
         target.fighter.apply_status_effect(Poisoned(duration=6, value=2))
+
+class HazmatSuit(Equippable):
+    def __init__(self) -> None:
+        super().__init__(equipment_type=EquipmentType.ARMOR, defense_bonus=3, extra_immunities=[Poisoned, Spored])
+
+class LeadHazmatSuit(Equippable):
+    def __init__(self) -> None:
+        super().__init__(equipment_type=EquipmentType.ARMOR, defense_bonus=5, extra_immunities=[Poisoned, Spored])

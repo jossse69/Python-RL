@@ -1,12 +1,14 @@
 from __future__ import annotations
 
-from typing import Optional, TYPE_CHECKING
+from typing import Optional, TYPE_CHECKING, Type
 
 from components.base_component import BaseComponent
 from equipment_types import EquipmentType
 
 if TYPE_CHECKING:
     from entity import Actor, Item
+    from status_effect import StatusEffect
+
 
 
 class Equipment(BaseComponent):
@@ -51,6 +53,26 @@ class Equipment(BaseComponent):
             bonus += self.armor.equippable.dodge_bonus
 
         return bonus
+
+    @property
+    def extra_immunities(self) -> list[Type[StatusEffect]]:
+        immunities = []
+
+        if self.weapon is not None and self.weapon.equippable is not None:
+            # Add the extra immunities from the weapon to the list.
+            for immunity in self.weapon.equippable.extra_immunities:
+                # Check if the immunity is already in the list.
+                if immunity not in immunities:
+                    immunities.append(immunity)
+
+        if self.armor is not None and self.armor.equippable is not None:
+            # Add the extra immunities from the armor to the list.
+            for immunity in self.armor.equippable.extra_immunities:
+                # Check if the immunity is already in the list.
+                if immunity not in immunities:
+                    immunities.append(immunity)
+
+        return immunities
 
     def item_is_equipped(self, item: Item) -> bool:
         return self.weapon == item or self.armor == item

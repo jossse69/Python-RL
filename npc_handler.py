@@ -25,6 +25,9 @@ shop_item_chances: List[Tuple[int, int]] = [
     ("acid_kinfe", 5),
     ("spikey_chest_plate", 5),
     ("fireball_gun", 5),
+    ("hazmat_suit", 5),
+    ("lead_hazmat_suit", 5),
+    ("silver_kinfe", 5),
 ]
 
 
